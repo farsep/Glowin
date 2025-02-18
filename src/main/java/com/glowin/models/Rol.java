@@ -1,6 +1,6 @@
 package com.glowin.models;
 
 public enum Rol {
-    ADMINISTRATOR,
+    ADMINISTRADOR,
     USUARIO
 }
