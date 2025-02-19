@@ -19,7 +19,7 @@ public class Servicio {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    private Long id;
+    private Long ID;
     @NonNull
     private String nombre;
     @NonNull

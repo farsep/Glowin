@@ -14,7 +14,7 @@ public record ReservaOutput(Long id, Estado estado, LocalDate fecha, LocalTime h
 
     public ReservaOutput(Reserva reserva, Empleado empleado, Usuario usuario, Servicio servicio) {
         this(
-                reserva.getId(),
+                reserva.getID(),
                 reserva.getEstado(),
                 reserva.getFecha(),
                 reserva.getHora(),

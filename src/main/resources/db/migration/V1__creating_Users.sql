@@ -1,6 +1,6 @@
 CREATE TYPE rol_enum AS ENUM ('ADMINISTRATOR', 'USUARIO');
 
-CREATE TABLE Usuario (
+CREATE TABLE usuarios (
                          id BIGINT PRIMARY KEY,
                          nombre VARCHAR(255) NOT NULL,
                          apellido VARCHAR(255) NOT NULL,
@@ -9,5 +9,9 @@ CREATE TABLE Usuario (
                          rol rol_enum NOT NULL
 );
 
+
 -- Inyectar datos de prueba
-INSERT INTO Usuario (id, nombre, apellido, email, password, rol) VALUES (1, 'admin', 'admin', 'pepe@tubi.com', 'admin', 'ADMINISTRATOR');
+INSERT INTO usuarios (id, nombre, apellido, email, password, rol) VALUES (1, 'admin', 'admin', 'pepe@tubi.com', 'admin', 'ADMINISTRATOR');
+
+
+

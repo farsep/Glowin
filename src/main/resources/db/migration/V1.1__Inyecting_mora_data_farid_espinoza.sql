@@ -4,7 +4,7 @@ DO $$
         i INTEGER := 1;
     BEGIN
         WHILE i <= 100 LOOP
-                INSERT INTO Usuario (id, nombre, apellido, email, password, rol)
+                INSERT INTO usuarios (id, nombre, apellido, email, password, rol)
                 VALUES (
                            i + 1,
                            'nombre' || i,
