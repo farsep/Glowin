@@ -1,8 +1,8 @@
 package com.glowin.controller;
 
-import com.glowin.models.Input.UsuarioInput;
-import com.glowin.models.Usuario;
-import com.glowin.models.output.UsuarioOutput;
+import com.glowin.model.Input.UsuarioInput;
+import com.glowin.model.Usuario;
+import com.glowin.model.output.UsuarioOutput;
 import com.glowin.repository.IUsuarioRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;

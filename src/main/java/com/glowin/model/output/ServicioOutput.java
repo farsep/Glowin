@@ -1,6 +1,6 @@
-package com.glowin.models.output;
+package com.glowin.model.output;
 
-import com.glowin.models.Servicio;
+import com.glowin.model.Servicio;
 
 import java.math.BigDecimal;
 

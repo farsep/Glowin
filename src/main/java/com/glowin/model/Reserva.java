@@ -1,7 +1,7 @@
-package com.glowin.models;
+package com.glowin.model;
 
-import com.glowin.models.Input.ReservaInput;
-import com.glowin.models.enums.Estado;
+import com.glowin.model.Input.ReservaInput;
+import com.glowin.model.enums.Estado;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;

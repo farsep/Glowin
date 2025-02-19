@@ -1,8 +1,8 @@
 package com.glowin.controller;
 
-import com.glowin.models.CategoriaServicio;
-import com.glowin.models.Input.CategoriaServicioInput;
-import com.glowin.models.output.CategoriaServicioOutput;
+import com.glowin.model.CategoriaServicio;
+import com.glowin.model.Input.CategoriaServicioInput;
+import com.glowin.model.output.CategoriaServicioOutput;
 import com.glowin.repository.ICategoriaServicioRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;

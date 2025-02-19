@@ -1,14 +1,13 @@
 package com.glowin.controller;
 
-import com.glowin.models.Input.ReservaInput;
-import com.glowin.models.Reserva;
-import com.glowin.models.output.ReservaOutput;
+import com.glowin.model.Input.ReservaInput;
+import com.glowin.model.Reserva;
+import com.glowin.model.output.ReservaOutput;
 import com.glowin.repository.IEmpleadoRepository;
 import com.glowin.repository.IReservaRepository;
 import com.glowin.repository.IServicioRepository;
 import com.glowin.repository.IUsuarioRepository;
 import jakarta.transaction.Transactional;
-import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

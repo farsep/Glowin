@@ -1,6 +1,6 @@
-package com.glowin.models;
+package com.glowin.model;
 
-import com.glowin.models.Input.ServicioInput;
+import com.glowin.model.Input.ServicioInput;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.util.Set;
 
 @Entity

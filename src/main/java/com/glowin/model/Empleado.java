@@ -1,7 +1,7 @@
-package com.glowin.models;
+package com.glowin.model;
 
-import com.glowin.models.Input.EmpleadoInput;
-import com.glowin.models.enums.TipoJornada;
+import com.glowin.model.Input.EmpleadoInput;
+import com.glowin.model.enums.TipoJornada;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

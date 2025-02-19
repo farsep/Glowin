@@ -1,8 +1,8 @@
 package com.glowin.controller;
 
-import com.glowin.models.Empleado;
-import com.glowin.models.Input.EmpleadoInput;
-import com.glowin.models.output.EmpleadoOutput;
+import com.glowin.model.Empleado;
+import com.glowin.model.Input.EmpleadoInput;
+import com.glowin.model.output.EmpleadoOutput;
 import com.glowin.repository.IEmpleadoRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;

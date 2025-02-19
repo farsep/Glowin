@@ -1,10 +1,10 @@
-package com.glowin.models.output;
+package com.glowin.model.output;
 
-import com.glowin.models.Empleado;
-import com.glowin.models.Reserva;
-import com.glowin.models.enums.Estado;
-import com.glowin.models.Servicio;
-import com.glowin.models.Usuario;
+import com.glowin.model.Empleado;
+import com.glowin.model.Reserva;
+import com.glowin.model.enums.Estado;
+import com.glowin.model.Servicio;
+import com.glowin.model.Usuario;
 
 import java.time.LocalDate;
 import java.time.LocalTime;

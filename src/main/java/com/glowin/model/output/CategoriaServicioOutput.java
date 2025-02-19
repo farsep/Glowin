@@ -1,6 +1,6 @@
-package com.glowin.models.output;
+package com.glowin.model.output;
 
-import com.glowin.models.CategoriaServicio;
+import com.glowin.model.CategoriaServicio;
 
 public record CategoriaServicioOutput(String nombre) {
 

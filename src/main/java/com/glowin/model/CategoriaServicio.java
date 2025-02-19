@@ -1,6 +1,6 @@
-package com.glowin.models;
+package com.glowin.model;
 
-import com.glowin.models.Input.CategoriaServicioInput;
+import com.glowin.model.Input.CategoriaServicioInput;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

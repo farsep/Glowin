@@ -1,6 +1,6 @@
-package com.glowin.models.output;
+package com.glowin.model.output;
 
-import com.glowin.models.Empleado;
+import com.glowin.model.Empleado;
 
 public record EmpleadoOutput(String nombre, String apellido, String tipoJornada) {
     public EmpleadoOutput(Empleado empleado) {

@@ -1,4 +1,4 @@
-package com.glowin.models.enums;
+package com.glowin.model.enums;
 
 public enum TipoJornada {
     MATUTINA,
