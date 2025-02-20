@@ -1,12 +1,12 @@
 package com.glowin.models;
 
-import com.glowin.converter.EstadoConverter;
-import com.glowin.converter.RolConverter;
 import com.glowin.models.Input.ReservaInput;
 import com.glowin.models.enums.Estado;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -42,7 +42,8 @@ public class Reserva {
     @ColumnDefault("CURRENT_TIMESTAMP")
     private LocalTime hora;
 
-    @Convert(converter = EstadoConverter.class)
+    @Enumerated
+    @JdbcType(PostgreSQLEnumJdbcType.class)
     @Column(name = "estado", nullable = false)
     @ColumnDefault("PENDIENTE")
     private Estado estado;

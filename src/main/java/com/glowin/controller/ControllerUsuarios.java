@@ -4,10 +4,13 @@ import com.glowin.models.Input.UsuarioInput;
 import com.glowin.models.Usuario;
 import com.glowin.models.output.UsuarioOutput;
 import com.glowin.repository.IUsuarioRepository;
+import com.google.gson.JsonObject;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.Optional;
 
@@ -34,7 +37,9 @@ public class ControllerUsuarios {
     public ResponseEntity<UsuarioOutput> registerUser(@RequestBody UsuarioInput usuarioInput) {
         Usuario user = new Usuario(usuarioInput);
         usuarioRepository.save(user);
-        return ResponseEntity.ok(new UsuarioOutput(user));
+        return ResponseEntity.created(
+                ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+                        .buildAndExpand(user.getId()).toUri()).body(new UsuarioOutput(user));
     }
 
 //    @PutMapping("/{id}")
@@ -51,11 +56,15 @@ public class ControllerUsuarios {
 //    }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<UsuarioOutput> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
         Optional<Usuario> user = usuarioRepository.findById(id);
         if (user.isPresent()) {
             usuarioRepository.delete(user.get());
-            return ResponseEntity.ok(new UsuarioOutput(user.get()));
+            JsonObject jsonObject = new JsonObject();
+            jsonObject.addProperty("message", "User deleted successfully");
+            HttpHeaders header = new HttpHeaders();
+            header.add("Content-Type", "application/json");
+            return ResponseEntity.ok().headers(header).body(jsonObject.toString());
         } else {
             return ResponseEntity.notFound().build();
         }

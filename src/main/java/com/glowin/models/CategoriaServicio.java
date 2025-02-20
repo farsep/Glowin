@@ -1,12 +1,13 @@
 package com.glowin.models;
 
-import com.glowin.converter.CategoriaServicioEnumConverter;
 import com.glowin.models.Input.CategoriaServicioInput;
 import com.glowin.models.enums.CategoriaServicioEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 import java.util.Set;
 
@@ -21,7 +22,8 @@ public class CategoriaServicio {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Convert(converter = CategoriaServicioEnumConverter.class)
+    @Enumerated
+    @JdbcType(PostgreSQLEnumJdbcType.class)
     @Column(name = "nombre", nullable = false)
     private CategoriaServicioEnum nombre;
 

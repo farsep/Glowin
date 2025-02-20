@@ -5,10 +5,13 @@ import com.glowin.models.Servicio;
 import com.glowin.models.output.ServicioOutput;
 import com.glowin.repository.ICategoriaServicioRepository;
 import com.glowin.repository.IServicioRepository;
+import com.google.gson.JsonObject;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.Optional;
 
@@ -37,12 +40,23 @@ public class ControllerServicios {
     public ResponseEntity<ServicioOutput> registerServicio(@RequestBody ServicioInput servicioInput) {
         Servicio servicio = new Servicio(servicioInput, categoriaServicioRepository.findById(servicioInput.categoriaId()).orElseThrow());
         servicioRepository.save(servicio);
-        return ResponseEntity.ok(new ServicioOutput(servicio));
+        return ResponseEntity.created(
+                ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+                        .buildAndExpand(servicio.getId()).toUri()).body(new ServicioOutput(servicio));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteServicio(@PathVariable Long id) {
-        servicioRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<String> deleteServicio(@PathVariable Long id) {
+        Optional<Servicio> servicio = servicioRepository.findById(id);
+        if (servicio.isPresent()) {
+            servicioRepository.delete(servicio.get());
+            JsonObject jsonObject = new JsonObject();
+            jsonObject.addProperty("message", "Service deleted successfully");
+            HttpHeaders header = new HttpHeaders();
+            header.add("Content-Type", "application/json");
+            return ResponseEntity.ok().headers(header).body(jsonObject.toString());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
