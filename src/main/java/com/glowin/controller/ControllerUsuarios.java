@@ -34,7 +34,6 @@ public class ControllerUsuarios {
     public ResponseEntity<UsuarioOutput> registerUser(@RequestBody UsuarioInput usuarioInput) {
         Usuario user = new Usuario(usuarioInput);
         usuarioRepository.save(user);
-        new UsuarioInput("juan", "Juan", "Perez", "as", "ADMIN");
         return ResponseEntity.ok(new UsuarioOutput(user));
     }
 

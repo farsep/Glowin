@@ -3,6 +3,7 @@ package com.glowin.controller;
 import com.glowin.models.Input.ServicioInput;
 import com.glowin.models.Servicio;
 import com.glowin.models.output.ServicioOutput;
+import com.glowin.repository.ICategoriaServicioRepository;
 import com.glowin.repository.IServicioRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,9 @@ public class ControllerServicios {
     @Autowired
     private IServicioRepository servicioRepository;
 
+    @Autowired
+    private ICategoriaServicioRepository categoriaServicioRepository;
+
     @GetMapping("/{id}")
     public ResponseEntity<ServicioOutput> getServicio(@PathVariable Long id) {
         Optional<Servicio> servicio = servicioRepository.findById(id);
@@ -31,7 +35,7 @@ public class ControllerServicios {
     @Transactional
     @PostMapping
     public ResponseEntity<ServicioOutput> registerServicio(@RequestBody ServicioInput servicioInput) {
-        Servicio servicio = new Servicio(servicioInput);
+        Servicio servicio = new Servicio(servicioInput, categoriaServicioRepository.findById(servicioInput.categoriaId()).orElseThrow());
         servicioRepository.save(servicio);
         return ResponseEntity.ok(new ServicioOutput(servicio));
     }

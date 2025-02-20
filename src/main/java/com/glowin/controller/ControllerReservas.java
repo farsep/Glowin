@@ -1,7 +1,10 @@
 package com.glowin.controller;
 
+import com.glowin.models.Empleado;
 import com.glowin.models.Input.ReservaInput;
 import com.glowin.models.Reserva;
+import com.glowin.models.Servicio;
+import com.glowin.models.Usuario;
 import com.glowin.models.output.ReservaOutput;
 import com.glowin.repository.IEmpleadoRepository;
 import com.glowin.repository.IReservaRepository;
@@ -56,14 +59,21 @@ public class ControllerReservas {
     @Transactional
     @PostMapping
     public ResponseEntity<ReservaOutput> registerReserva(ReservaInput reserva) {
-        Reserva reserva1 = new Reserva(reserva);
-        reservaRepo.save(reserva1);
-        return ResponseEntity.ok(ConvertToOutput(reserva1));
+        Optional<Usuario> usuario = usuarioRepo.findById(reserva.idCliente());
+        Optional<Servicio> servicio = servicioRepo.findById(reserva.idServicio());
+        Optional<Empleado> empleado = empleadoRepo.findById(reserva.idEmpleado());
+        if(usuario.isPresent() && servicio.isPresent() && empleado.isPresent()){
+            Reserva reserva1 = new Reserva(reserva, usuario.get(), servicio.get(), empleado.get());
+            reservaRepo.save(reserva1);
+            return ResponseEntity.ok(ConvertToOutput(reserva1));
+        }
+        return ResponseEntity.notFound().build();
+
     }
 
 
     public ReservaOutput ConvertToOutput(Reserva reserva){
-        return new ReservaOutput(reserva, empleadoRepo.findById(reserva.getIdEmpleado()).orElseThrow(), usuarioRepo.findById(reserva.getIdCliente()).orElseThrow(), servicioRepo.findById(reserva.getIdServicio()).orElseThrow());
+        return new ReservaOutput(reserva, reserva.getEmpleado(), reserva.getCliente(), reserva.getServicio());
     }
 
 }

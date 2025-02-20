@@ -5,32 +5,32 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.util.Set;
 
 @Entity
 @Table(name = "servicios")
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class Servicio {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
-    @NonNull
+
     private String nombre;
-    @NonNull
     private String descripcion;
-    @NonNull
-    private Integer duracion;
-    @NonNull
+    private Integer duracionMinutos;
     private BigDecimal costo;
+
     @ManyToOne
+    @JoinColumn(name = "id_categoria", nullable = false)
     private CategoriaServicio categoria;
+
+    @OneToMany(mappedBy = "servicio")
+    private Set<Reserva> reservas;
 
     @ManyToMany
     @JoinTable(
@@ -40,18 +40,11 @@ public class Servicio {
     )
     private Set<Empleado> empleados;
 
-    public Servicio(String nombre, String descripcion, Integer duracion, BigDecimal costo, CategoriaServicio categoria) {
-        this.nombre = nombre;
-        this.descripcion = descripcion;
-        this.duracion = duracion;
-        this.costo = costo;
-        this.categoria = categoria;
-    }
-
-    public Servicio(ServicioInput servicioInput) {
+    public Servicio(ServicioInput servicioInput, CategoriaServicio categoria) {
         this.nombre = servicioInput.nombre();
         this.descripcion = servicioInput.descripcion();
-        this.duracion = servicioInput.duracion();
+        this.duracionMinutos = servicioInput.duracionMinutos();
         this.costo = servicioInput.costo();
+        this.categoria = categoria;
     }
 }
