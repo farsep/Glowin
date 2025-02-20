@@ -19,6 +19,6 @@ public record UsuarioInput(
         String email,
         @NotBlank
         String password,
-        @NotEmpty
+        @NotBlank
         String rol){
 }

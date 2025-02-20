@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 import java.math.BigDecimal;
 import java.util.Set;
@@ -20,13 +22,21 @@ public class Empleado {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
+
     private String nombre;
     private String apellido;
     private String email;
     private String celular;
     private BigDecimal salario;
     private String dni;
+
+    @Enumerated
+    @JdbcType(PostgreSQLEnumJdbcType.class)
+    @Column(name = "tipo_jornada", nullable = false)
     private TipoJornada tipoJornada;
+
+    @OneToMany(mappedBy = "empleado")
+    private Set<Reserva> reservas;
 
     @ManyToMany(mappedBy = "empleados")
     private Set<Servicio> servicios;

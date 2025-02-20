@@ -5,6 +5,8 @@ import com.glowin.models.enums.Estado;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -20,35 +22,47 @@ public class Reserva {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
-    @NonNull
-    private Long idCliente;
-    @NonNull
-    private Long idServicio;
-    @NonNull
-    private Long idEmpleado;
-    @NonNull
+
+    @ManyToOne
+    @JoinColumn(name = "id_cliente", nullable = false)
+    private Usuario cliente;
+
+    @ManyToOne
+    @JoinColumn(name = "id_servicio", nullable = false)
+    private Servicio servicio;
+
+    @ManyToOne
+    @JoinColumn(name = "id_empleado", nullable = false)
+    private Empleado empleado;
+
+    @Column(nullable = false)
     private LocalDate fecha;
-    @NonNull
+
+    @Column(nullable = false)
     @ColumnDefault("CURRENT_TIMESTAMP")
     private LocalTime hora;
-    @NonNull
+
+    @Enumerated
+    @JdbcType(PostgreSQLEnumJdbcType.class)
+    @Column(name = "estado", nullable = false)
+    @ColumnDefault("PENDIENTE")
     private Estado estado;
 
-    public Reserva(Long idCliente, Long idServicio, Long idEmpleado, LocalDate fecha, LocalTime hora, Estado estado) {
-        this.idCliente = idCliente;
-        this.idServicio = idServicio;
-        this.idEmpleado = idEmpleado;
+    public Reserva(Usuario cliente, Servicio servicio, Empleado empleado, LocalDate fecha, LocalTime hora, Estado estado) {
+        this.cliente = cliente;
+        this.servicio = servicio;
+        this.empleado = empleado;
         this.fecha = fecha;
         this.hora = hora;
         this.estado = estado;
     }
 
-    public Reserva(ReservaInput reserva) {
+    public Reserva(ReservaInput reserva, Usuario cliente, Servicio servicio, Empleado empleado) {
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-        this.idCliente = reserva.idCliente();
-        this.idServicio = reserva.idServicio();
-        this.idEmpleado = reserva.idEmpleado();
+        this.cliente = cliente;
+        this.servicio = servicio;
+        this.empleado = empleado;
         this.fecha = LocalDate.parse(reserva.fecha(), dateFormatter);
         this.hora = LocalTime.parse(reserva.hora(), timeFormatter);
         this.estado = Estado.fromString(reserva.estado());
