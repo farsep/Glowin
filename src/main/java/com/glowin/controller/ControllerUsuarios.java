@@ -35,7 +35,7 @@ public class ControllerUsuarios {
         }
     }
 
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<List<UsuarioOutput>> getAllUsers() {
         List<Usuario> users = usuarioRepository.findAll();
         List<UsuarioOutput> userOutputs = users.stream().map(UsuarioOutput::new).toList();
