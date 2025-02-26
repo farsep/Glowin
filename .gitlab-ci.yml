@@ -13,7 +13,7 @@ generate_version:
   stage: build
   script:
     - export VERSION=$(git describe --tags --always --dirty)
-    - echo "Generated version: $VERSION"
+    - echo "Generated version "$VERSION
     - echo $VERSION > VERSION
   artifacts:
     paths:
