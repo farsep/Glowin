@@ -2,15 +2,14 @@ stages:
   - build
   - deploy
 
-services:
-  - docker:dind
 
-before_script:
-  - docker info || { echo "Docker is not running"; exit 1; }
-  - docker-compose --version || { echo "Docker Compose is not installed"; exit 1; }
 
 generate_version:
   stage: build
+  image: docker:dind
+  before_script:
+    - docker info || { echo "Docker is not running"; exit 1; }
+    - docker-compose --version || { echo "Docker Compose is not installed"; exit 1; }
   script:
     - export VERSION=$(git describe --tags --always --dirty)
     - echo "Generated version "$VERSION
@@ -23,6 +22,7 @@ generate_version:
 
 build:
   stage: deploy
+  image: docker:dind
   needs: ["generate_version"]
   dependencies:
     - generate_version
