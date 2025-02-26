@@ -6,23 +6,24 @@ import com.glowin.models.Usuario;
 import com.glowin.models.enums.Rol;
 import com.glowin.models.output.UsuarioOutput;
 import com.glowin.repository.IUsuarioRepository;
-import com.google.gson.JsonObject;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
+import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/usuarios")
 public class ControllerUsuarios {
+
     @Autowired
     private IUsuarioRepository usuarioRepository;
-
 
 
     @GetMapping("/{id}")
@@ -43,10 +44,21 @@ public class ControllerUsuarios {
     }
 
 
-
     @Transactional
     @PostMapping
-    public ResponseEntity<UsuarioOutput> registerUser(@RequestBody UsuarioInput usuarioInput) {
+    public ResponseEntity<?> registerUser(@RequestBody UsuarioInput usuarioInput) {
+
+        // valida si el rol es SUPER_ADMINISTRADOR y si ya existe un usuario con ese rol
+        // si el rol es SUPER_ADMINISTRADOR y ya existe un usuario con ese rol, retorna un error 409
+        Rol nuevoRol = Rol.fromString(usuarioInput.rol());
+        if (nuevoRol == Rol.SUPER_ADMINISTRADOR && usuarioRepository.existsByRol(Rol.SUPER_ADMINISTRADOR)) {
+            Map<String, String> response = new HashMap<>();
+            response.put("error", "Ya existe un usuario con el rol SUPER_ADMINISTRADOR");
+            response.put("status", "409");
+            response.put("timestamp", LocalDate.now().toString());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+        }
+
         Usuario user = new Usuario(usuarioInput);
         usuarioRepository.save(user);
         return ResponseEntity.created(
@@ -56,30 +68,33 @@ public class ControllerUsuarios {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<UsuarioOutput> updateUser(@PathVariable Long id, @RequestBody UsuarioUpdate usuarioUpdate) {
+    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody UsuarioUpdate usuarioUpdate) {
         Optional<Usuario> optionalUser = usuarioRepository.findById(id);
 
         if (optionalUser.isPresent()) {
             Usuario user = optionalUser.get();
 
-            // Solo actualiza los campos si no son nulos
-            if (usuarioUpdate.nombre() != null) {
-                user.setNombre(usuarioUpdate.nombre());
-            }
-            if (usuarioUpdate.apellido() != null) {
-                user.setApellido(usuarioUpdate.apellido());
-            }
-            if (usuarioUpdate.email() != null) {
-                user.setEmail(usuarioUpdate.email());
-            }
-            if (usuarioUpdate.password() != null) {
-                user.setPassword(usuarioUpdate.password());
-            }
-            if (usuarioUpdate.rol() != null) {
-                user.setRol(Rol.fromString(String.valueOf(usuarioUpdate.rol())));
+            // Validar si el nuevo rol es SUPER_ADMINISTRADOR y ya existe uno en la BD
+            if (usuarioUpdate.rol() != null && usuarioUpdate.rol() == Rol.SUPER_ADMINISTRADOR &&
+                    usuarioRepository.existsByRol(Rol.SUPER_ADMINISTRADOR)) {
+                Map<String, String> response = new HashMap<>();
+                response.put("error", "Ya existe un usuario con el rol SUPER_ADMINISTRADOR");
+                response.put("status", "409");
+                response.put("timestamp", LocalDate.now().toString());
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
             }
 
+            // Actualizar solo los valores no nulos
+            if (usuarioUpdate.nombre() != null) user.setNombre(usuarioUpdate.nombre());
+            if (usuarioUpdate.apellido() != null) user.setApellido(usuarioUpdate.apellido());
+            if (usuarioUpdate.email() != null) user.setEmail(usuarioUpdate.email());
+            if (usuarioUpdate.password() != null) user.setPassword(usuarioUpdate.password());
+            if (usuarioUpdate.celular() != null) user.setCelular(usuarioUpdate.celular());
+            if (usuarioUpdate.fechaRegistro() != null) user.setFechaRegistro(usuarioUpdate.fechaRegistro());
+            if (usuarioUpdate.horaRegistro() != null) user.setHoraRegistro(usuarioUpdate.horaRegistro());
+
             usuarioRepository.save(user);
+
             return ResponseEntity.ok(new UsuarioOutput(user));
         } else {
             return ResponseEntity.notFound().build();
@@ -87,19 +102,21 @@ public class ControllerUsuarios {
     }
 
 
-
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<Map<String, String>> deleteUser(@PathVariable Long id) {
         Optional<Usuario> user = usuarioRepository.findById(id);
         if (user.isPresent()) {
             usuarioRepository.delete(user.get());
-            JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty("message", "User deleted successfully");
-            HttpHeaders header = new HttpHeaders();
-            header.add("Content-Type", "application/json");
-            return ResponseEntity.ok().headers(header).body(jsonObject.toString());
+
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Usuario eliminado con éxito");
+            response.put("status", "200");
+            response.put("timestamp", LocalDate.now().toString());
+
+            return ResponseEntity.ok(response);
         } else {
             return ResponseEntity.notFound().build();
         }
     }
+
 }

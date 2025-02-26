@@ -1,11 +1,14 @@
 package com.glowin.models.Input;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.glowin.models.enums.Rol;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 /**
  * DTO for {@link com.glowin.models.Usuario}
@@ -18,7 +21,16 @@ public record UsuarioInput(
         @Email
         String email,
         @NotBlank
+        String celular,
+        @NotBlank
         String password,
         @NotBlank
-        String rol){
+        String rol,
+        @NotBlank
+        @JsonFormat(pattern = "yyyy-MM-dd")
+        LocalDate fechaRegistro,
+        @NotBlank
+        @JsonFormat(pattern = "HH:mm:ss")
+        LocalTime horaRegistro){
 }
+// JSON no tiene un tipo LocalDate o LocalTime, las fechas suelen enviarse como String en formato "yyyy-MM-dd" y "HH:mm:ss"
