@@ -1,0 +1,37 @@
+stages:
+  - build
+  - deploy
+
+services:
+  - docker:dind
+
+before_script:
+  - docker info || { echo "Docker is not running"; exit 1; }
+  - docker-compose --version || { echo "Docker Compose is not installed"; exit 1; }
+
+generate_version:
+  stage: build
+  script:
+    - export VERSION=$(git describe --tags --always --dirty)
+    - echo "Generated version: $VERSION"
+    - echo $VERSION > VERSION
+  artifacts:
+    paths:
+      - VERSION
+  only:
+    - main
+
+build:
+  stage: deploy
+  needs: ["generate_version"]
+  dependencies:
+    - generate_version
+  script:
+    - export VERSION=$(cat VERSION)
+    - docker build -t gravel3497/glowin:$VERSION -t gravel3497/glowin:latest .
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+    - docker push gravel3497/glowin:$VERSION
+    - docker push gravel3497/glowin:latest
+  only:
+    - main
+
