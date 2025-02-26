@@ -1,0 +1,27 @@
+version: '3.9'
+name: glowin
+
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: glowin
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "5432:5432"
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - localhost=db
+      - port=5432
+      - username_db=postgres
+      - password_db=admin
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
