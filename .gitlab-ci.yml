@@ -9,7 +9,7 @@ generate_version:
   stage: build
   image: docker:latest
   before_script:
-    - docker info || { echo "Docker is not running"; exit 1; }
+    - docker info || { echo "Docker is not running, it's necessary to verify"; exit 1; }
     - docker-compose --version || { echo "Docker Compose is not installed"; exit 1; }
   script:
     - export VERSION=$(git describe --tags --always --dirty)
