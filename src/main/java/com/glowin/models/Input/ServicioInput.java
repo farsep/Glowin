@@ -22,6 +22,10 @@ public record ServicioInput(
         @Positive
         BigDecimal costo,
 
+        @Positive
+        @NotNull
+        Integer cantidadSesiones,
+
         Long categoriaId
 ) {
 }

@@ -24,6 +24,7 @@ public class Servicio {
     private String descripcion;
     private Integer duracionMinutos;
     private BigDecimal costo;
+    private Integer cantidadSesiones;
 
     @ManyToOne
     @JoinColumn(name = "id_categoria", nullable = false)
@@ -45,6 +46,7 @@ public class Servicio {
         this.descripcion = servicioInput.descripcion();
         this.duracionMinutos = servicioInput.duracionMinutos();
         this.costo = servicioInput.costo();
+        this.cantidadSesiones = servicioInput.cantidadSesiones();
         this.categoria = categoria;
     }
 }
