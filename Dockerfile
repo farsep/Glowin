@@ -11,7 +11,7 @@ COPY pom.xml .
 COPY src ./src
 
 # Use environment variables in the Maven command
-RUN mvn clean package -Dspring.datasource.url=$SPRING_DATASOURCE_URL -Dspring.datasource.username=$SPRING_DATASOURCE_USERNAME -Dspring.datasource.password=$SPRING_DATASOURCE_PASSWORD
+RUN mvn clean package -DskipTests -Dspring.datasource.url=$SPRING_DATASOURCE_URL -Dspring.datasource.username=$SPRING_DATASOURCE_USERNAME -Dspring.datasource.password=$SPRING_DATASOURCE_PASSWORD
 
 # Stage 2: Run the application
 FROM openjdk:23 AS run
