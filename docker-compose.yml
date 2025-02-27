@@ -12,9 +12,7 @@ services:
       - "5432:5432"
 
   app:
-    build:
-      context: .
-      dockerfile: gravel3497/glowin:latest
+    image: gravel3497/glowin:latest
     environment:
       - localhost=db
       - port=5432
