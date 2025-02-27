@@ -2,8 +2,6 @@ package com.glowin.models.Update;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.glowin.models.enums.Rol;
-import jakarta.validation.constraints.NotBlank;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
 
