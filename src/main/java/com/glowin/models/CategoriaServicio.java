@@ -1,7 +1,6 @@
 package com.glowin.models;
 
 import com.glowin.models.Input.CategoriaServicioInput;
-import com.glowin.models.enums.CategoriaServicioEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,15 +21,13 @@ public class CategoriaServicio {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Enumerated
-    @JdbcType(PostgreSQLEnumJdbcType.class)
-    @Column(name = "nombre", nullable = false)
-    private CategoriaServicioEnum nombre;
+    @Column(name = "nombre", nullable = false, unique = true)
+    private String nombre;
 
     @OneToMany(mappedBy = "categoria")
     private Set<Servicio> servicios;
 
     public CategoriaServicio(CategoriaServicioInput categoriaServicio) {
-        this.nombre = CategoriaServicioEnum.fromString(categoriaServicio.nombre());
+        this.nombre = categoriaServicio.nombre();
     }
 }

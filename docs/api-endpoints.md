@@ -196,3 +196,64 @@
 - ✅ `200 OK` - Empleado eliminado correctamente.
 - ❌ `404 Not Found` - Si el empleado no existe.
 
+
+## 📂 Categorías de Servicios
+
+### 🟢 Obtener todas las categorías
+**📌 Endpoint:** `GET /categorias-servicios/all`
+
+**📚 Descripción:** Obtiene la lista de todas las categorías de servicios registradas.
+
+#### 👤 Respuestas
+- ✅ `200 OK` - Retorna una lista de categorías en formato JSON.
+
+---
+
+### 🟢 Obtener una categoría por ID
+**📌 Endpoint:** `GET /categorias-servicios/{id}`
+
+**📚 Descripción:** Obtiene una categoría específica por su ID.
+
+#### 👤 Parámetros
+| Parámetro | Tipo  | Descripción                      |
+|-----------|------|--------------------------------|
+| `id`      | Long | ID de la categoría a buscar. |
+
+#### 👤 Respuestas
+- ✅ `200 OK` - Retorna la categoría en formato JSON.
+- ❌ `404 Not Found` - Si la categoría no existe.
+
+---
+
+### 🟢 Registrar una nueva categoría
+**📌 Endpoint:** `POST /categorias-servicios`
+
+**📚 Descripción:** Registra una nueva categoría en el sistema.  
+🔹 **El nombre de la categoría se guardará automáticamente en mayúsculas.**
+
+#### 📂 Cuerpo de la solicitud (`JSON`)
+```json
+{
+  "nombre": "string"
+}
+```
+
+#### 👤 Respuestas
+- ✅ `201 Created` - Categoría creada exitosamente.
+
+---
+
+### 🟢 Eliminar una categoría
+**📌 Endpoint:** `DELETE /categorias-servicios/{id}`
+
+**📚 Descripción:** Elimina una categoría por su ID.
+
+#### 👤 Parámetros
+| Parámetro | Tipo  | Descripción                      |
+|-----------|------|--------------------------------|
+| `id`      | Long | ID de la categoría a eliminar. |
+
+#### 👤 Respuestas
+- ✅ `200 OK` - Categoría eliminada correctamente.
+- ❌ `404 Not Found` - Si la categoría no existe.  
+
