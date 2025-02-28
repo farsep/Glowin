@@ -2,18 +2,19 @@ package com.glowin.controller;
 
 import com.glowin.models.Empleado;
 import com.glowin.models.Input.EmpleadoInput;
+import com.glowin.models.Update.EmpleadoUpdate;
 import com.glowin.models.output.EmpleadoOutput;
 import com.glowin.repository.IEmpleadoRepository;
-import com.google.gson.JsonObject;
 import jakarta.transaction.Transactional;
-import org.springframework.data.domain.Page;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -26,7 +27,6 @@ public class ControllerEmpleados {
     @GetMapping("/{id}")
     public ResponseEntity<EmpleadoOutput> getEmpleado(@PathVariable Long id) {
         Optional<Empleado> empleado = empleadoRepository.findById(id);
-
         if (empleado.isPresent()) {
             return ResponseEntity.ok(new EmpleadoOutput(empleado.get()));
         } else {
@@ -35,14 +35,15 @@ public class ControllerEmpleados {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<Page<EmpleadoOutput>> getAllEmpleados(Pageable pageable) {
-        Page<EmpleadoOutput> empleados = empleadoRepository.findAll(pageable).map(EmpleadoOutput::new);
-        return ResponseEntity.ok(empleados);
+    public ResponseEntity<List<EmpleadoOutput>> getAllEmpleados() {
+        List<Empleado> empleados = empleadoRepository.findAll();
+        List<EmpleadoOutput> empleadoOutputs = empleados.stream().map(EmpleadoOutput::new).toList();
+        return ResponseEntity.ok(empleadoOutputs);
     }
 
     @Transactional
     @PostMapping
-    public ResponseEntity<EmpleadoOutput> registerEmpleado(@RequestBody EmpleadoInput empleadoInput) {
+    public ResponseEntity<?> registerEmpleado(@RequestBody EmpleadoInput empleadoInput) {
         Empleado empleado = new Empleado(empleadoInput);
         empleadoRepository.save(empleado);
         return ResponseEntity.created(
@@ -50,19 +51,45 @@ public class ControllerEmpleados {
                         .buildAndExpand(empleado.getId()).toUri()).body(new EmpleadoOutput(empleado));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteEmpleado(@PathVariable Long id) {
-        Optional<Empleado> empleado = empleadoRepository.findById(id);
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateEmpleado(@PathVariable Long id, @RequestBody EmpleadoUpdate empleadoUpdate) {
+        Optional<Empleado> optionalEmpleado = empleadoRepository.findById(id);
 
-        if (empleado.isPresent()) {
-            empleadoRepository.delete(empleado.get());
-            JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty("message", "Employee deleted successfully");
-            HttpHeaders header = new HttpHeaders();
-            header.add("Content-Type", "application/json");
-            return ResponseEntity.ok().headers(header).body(jsonObject.toString());
+        if (optionalEmpleado.isPresent()) {
+            Empleado empleado = optionalEmpleado.get();
+            updateEmpleadoFields(empleado, empleadoUpdate);
+            empleadoRepository.save(empleado);
+            return ResponseEntity.ok(new EmpleadoOutput(empleado));
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Map<String, String>> deleteEmpleado(@PathVariable Long id) {
+        Optional<Empleado> empleado = empleadoRepository.findById(id);
+        if (empleado.isPresent()) {
+            empleadoRepository.delete(empleado.get());
+
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Empleado eliminado con éxito");
+            response.put("status", "200");
+            response.put("timestamp", LocalDate.now().toString());
+
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    private void updateEmpleadoFields(Empleado empleado, EmpleadoUpdate empleadoUpdate) {
+        if (empleadoUpdate.nombre() != null) empleado.setNombre(empleadoUpdate.nombre());
+        if (empleadoUpdate.apellido() != null) empleado.setApellido(empleadoUpdate.apellido());
+        if (empleadoUpdate.email() != null) empleado.setEmail(empleadoUpdate.email());
+        if (empleadoUpdate.celular() != null) empleado.setCelular(empleadoUpdate.celular());
+        if (empleadoUpdate.salario() != null) empleado.setSalario(empleadoUpdate.salario());
+        if (empleadoUpdate.dni() != null) empleado.setDni(empleadoUpdate.dni());
+        if (empleadoUpdate.fechaRegistro() != null) empleado.setFechaRegistro(empleadoUpdate.fechaRegistro());
+        if (empleadoUpdate.tipoJornada() != null) empleado.setTipoJornada(empleadoUpdate.tipoJornada());
     }
 }

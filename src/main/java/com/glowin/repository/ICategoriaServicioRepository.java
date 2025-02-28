@@ -5,6 +5,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 public interface ICategoriaServicioRepository extends JpaRepository<CategoriaServicio, Long> {
-    Page<CategoriaServicio> findAll(Pageable pageable);
+    List<CategoriaServicio> findAll();
 }

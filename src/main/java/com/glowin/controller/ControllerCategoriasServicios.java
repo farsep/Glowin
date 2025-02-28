@@ -10,11 +10,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-
 @RestController
 @RequestMapping("/categorias-servicios")
 public class ControllerCategoriasServicios {
@@ -23,37 +27,57 @@ public class ControllerCategoriasServicios {
     private ICategoriaServicioRepository categoriaServicioRepository;
 
     @GetMapping("/all")
-    public ResponseEntity<Page<CategoriaServicioOutput>> getAllCategoriasServicios(Pageable pageable) {
-        Page<CategoriaServicioOutput> categoriasServicios = categoriaServicioRepository.findAll(pageable).map(CategoriaServicioOutput::new);
+    public ResponseEntity<List<CategoriaServicioOutput>> getAllCategoriasServicios() {
+        List<CategoriaServicioOutput> categoriasServicios = categoriaServicioRepository.findAll()
+                .stream()
+                .map(CategoriaServicioOutput::new)
+                .toList();
         return ResponseEntity.ok(categoriasServicios);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CategoriaServicioOutput> getCategoriaServicio(@PathVariable Long id) {
+    public ResponseEntity<?> getCategoriaServicio(@PathVariable Long id) {
         Optional<CategoriaServicio> categoriaServicio = categoriaServicioRepository.findById(id);
-        return categoriaServicio.map(servicio -> ResponseEntity.ok(new CategoriaServicioOutput(servicio))).orElseGet(() -> ResponseEntity.notFound().build());
+        if (categoriaServicio.isPresent()) {
+            return ResponseEntity.ok(new CategoriaServicioOutput(categoriaServicio.get()));
+        } else {
+            Map<String, String> response = new HashMap<>();
+            response.put("error", "Categoría no encontrada");
+            response.put("status", "404");
+            response.put("timestamp", LocalDate.now().toString());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
     }
 
     @Transactional
     @PostMapping
     public ResponseEntity<CategoriaServicioOutput> registerCategoriaServicio(@RequestBody CategoriaServicioInput categoriaServicio) {
-        CategoriaServicio categoriaServicio1 = new CategoriaServicio(categoriaServicio);
-        categoriaServicioRepository.save(categoriaServicio1);
-        return ResponseEntity.ok(new CategoriaServicioOutput(categoriaServicio1));
+        // Convertir el nombre de la categoría a mayúsculas antes de guardarla
+        CategoriaServicio nuevaCategoria = new CategoriaServicio(
+                new CategoriaServicioInput(categoriaServicio.nombre().toUpperCase())
+        );
+        categoriaServicioRepository.save(nuevaCategoria);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new CategoriaServicioOutput(nuevaCategoria));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteCategoriaServicio(@PathVariable Long id) {
+    public ResponseEntity<Map<String, String>> deleteCategoriaServicio(@PathVariable Long id) {
         Optional<CategoriaServicio> categoriaServicio = categoriaServicioRepository.findById(id);
         if (categoriaServicio.isPresent()) {
             categoriaServicioRepository.delete(categoriaServicio.get());
-            JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty("message", "Category deleted successfully");
-            HttpHeaders header = new HttpHeaders();
-            header.add("Content-Type", "application/json");
-            return ResponseEntity.ok().headers(header).body(jsonObject.toString());
+
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Categoría eliminada con éxito");
+            response.put("status", "200");
+            response.put("timestamp", LocalDate.now().toString());
+
+            return ResponseEntity.ok(response);
         } else {
-            return ResponseEntity.notFound().build();
+            Map<String, String> response = new HashMap<>();
+            response.put("error", "Categoría no encontrada");
+            response.put("status", "404");
+            response.put("timestamp", LocalDate.now().toString());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
     }
 }

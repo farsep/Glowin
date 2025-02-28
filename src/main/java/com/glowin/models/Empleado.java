@@ -10,6 +10,7 @@ import org.hibernate.annotations.JdbcType;
 import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Set;
 
 @Entity
@@ -29,6 +30,8 @@ public class Empleado {
     private String celular;
     private BigDecimal salario;
     private String dni;
+    @Column(name = "fecha_registro", nullable = false)
+    private LocalDate fechaRegistro;
 
     @Enumerated
     @JdbcType(PostgreSQLEnumJdbcType.class)
@@ -41,12 +44,13 @@ public class Empleado {
     @ManyToMany(mappedBy = "empleados")
     private Set<Servicio> servicios;
 
-    public Empleado(String nombre, String apellido, String email, String celular, BigDecimal salario, String dni, TipoJornada tipoJornada) {
+    public Empleado(String nombre, String apellido, String email, String celular, BigDecimal salario, String dni, LocalDate fechaRegistro,  TipoJornada tipoJornada) {
         this.nombre = nombre;
         this.apellido = apellido;
         this.email = email;
         this.celular = celular;
         this.salario = salario;
+        this.fechaRegistro= fechaRegistro;
         this.dni = dni;
         this.tipoJornada = tipoJornada;
     }
@@ -58,6 +62,7 @@ public class Empleado {
         this.celular = empleadoInput.celular();
         this.salario = empleadoInput.salario();
         this.dni = empleadoInput.dni();
+        this.fechaRegistro = empleadoInput.fechaRegistro() != null ? empleadoInput.fechaRegistro() : LocalDate.now();
         this.tipoJornada = TipoJornada.fromString(empleadoInput.tipoJornada());
     }
 }
