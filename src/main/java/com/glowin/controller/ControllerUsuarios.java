@@ -48,6 +48,15 @@ public class ControllerUsuarios {
     @PostMapping
     public ResponseEntity<?> registerUser(@RequestBody UsuarioInput usuarioInput) {
 
+        // valida si el email ya está en uso
+        if (usuarioRepository.existsByEmail(usuarioInput.email())) {
+            Map<String, String> response = new HashMap<>();
+            response.put("error", "El email ya está en uso");
+            response.put("status", "409");
+            response.put("timestamp", LocalDate.now().toString());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+        }
+
         // valida si el rol es SUPER_ADMINISTRADOR y si ya existe un usuario con ese rol
         // si el rol es SUPER_ADMINISTRADOR y ya existe un usuario con ese rol, retorna un error 409
         Rol nuevoRol = Rol.fromString(usuarioInput.rol());
@@ -74,6 +83,18 @@ public class ControllerUsuarios {
         if (optionalUser.isPresent()) {
             Usuario user = optionalUser.get();
 
+            // Validar que el nuevo email no esté en uso por otro usuario
+            if (usuarioUpdate.email() != null && !usuarioUpdate.email().equals(user.getEmail())) {
+                if (usuarioRepository.existsByEmail(usuarioUpdate.email())) {
+                    Map<String, String> response = new HashMap<>();
+                    response.put("error", "El email ya está en uso por otro usuario");
+                    response.put("status", "409");
+                    response.put("timestamp", LocalDate.now().toString());
+                    return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+                }
+                user.setEmail(usuarioUpdate.email());
+            }
+
             // Validar si el nuevo rol es SUPER_ADMINISTRADOR y ya existe uno en la BD
             if (usuarioUpdate.rol() != null && usuarioUpdate.rol() == Rol.SUPER_ADMINISTRADOR &&
                     usuarioRepository.existsByRol(Rol.SUPER_ADMINISTRADOR)) {
@@ -87,11 +108,11 @@ public class ControllerUsuarios {
             // Actualizar solo los valores no nulos
             if (usuarioUpdate.nombre() != null) user.setNombre(usuarioUpdate.nombre());
             if (usuarioUpdate.apellido() != null) user.setApellido(usuarioUpdate.apellido());
-            if (usuarioUpdate.email() != null) user.setEmail(usuarioUpdate.email());
             if (usuarioUpdate.password() != null) user.setPassword(usuarioUpdate.password());
             if (usuarioUpdate.celular() != null) user.setCelular(usuarioUpdate.celular());
             if (usuarioUpdate.fechaRegistro() != null) user.setFechaRegistro(usuarioUpdate.fechaRegistro());
             if (usuarioUpdate.horaRegistro() != null) user.setHoraRegistro(usuarioUpdate.horaRegistro());
+            if (usuarioUpdate.rol() != null) user.setRol(usuarioUpdate.rol());
 
             usuarioRepository.save(user);
 
@@ -101,22 +122,54 @@ public class ControllerUsuarios {
         }
     }
 
-
     @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, String>> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<Map<String, String>> deleteUser(@PathVariable Long id, @RequestParam(required = false) Long nuevoSuperAdminId) {
         Optional<Usuario> user = usuarioRepository.findById(id);
-        if (user.isPresent()) {
-            usuarioRepository.delete(user.get());
 
-            Map<String, String> response = new HashMap<>();
-            response.put("message", "Usuario eliminado con éxito");
-            response.put("status", "200");
-            response.put("timestamp", LocalDate.now().toString());
-
-            return ResponseEntity.ok(response);
-        } else {
+        if (user.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
+
+        Usuario usuario = user.get();
+
+        // Si el usuario es SUPER_ADMINISTRADOR, debe transferir el rol antes de eliminarse
+        if (usuario.getRol() == Rol.SUPER_ADMINISTRADOR) {
+            if (nuevoSuperAdminId == null) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(
+                        "error", "Debes asignar un nuevo SUPER_ADMINISTRADOR antes de eliminar este usuario",
+                        "status", "409",
+                        "timestamp", LocalDate.now().toString()
+                ));
+            }
+
+            Optional<Usuario> nuevoAdmin = usuarioRepository.findById(nuevoSuperAdminId);
+
+            if (nuevoAdmin.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                        "error", "El nuevo SUPER_ADMINISTRADOR no existe",
+                        "status", "404",
+                        "timestamp", LocalDate.now().toString()
+                ));
+            }
+
+            Usuario nuevoSuperAdmin = nuevoAdmin.get();
+
+            // Eliminar al usuario original primero
+            usuarioRepository.delete(usuario);
+
+            // Actualizar roles
+            nuevoSuperAdmin.setRol(Rol.SUPER_ADMINISTRADOR);
+            usuarioRepository.save(nuevoSuperAdmin);
+        } else {
+            // Eliminar al usuario original si no es SUPER_ADMINISTRADOR
+            usuarioRepository.delete(usuario);
+        }
+
+        return ResponseEntity.ok(Map.of(
+                "message", "Usuario eliminado con éxito",
+                "status", "200",
+                "timestamp", LocalDate.now().toString()
+        ));
     }
 
 }

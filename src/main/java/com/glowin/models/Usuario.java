@@ -14,11 +14,10 @@ import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Set;
 
 @Entity
-@Table(name = "usuarios")
+@Table(name = "usuarios", uniqueConstraints = @UniqueConstraint(columnNames = "email"))
 @Check(constraints = "rol != 'SUPER_ADMINISTRADOR' OR (SELECT COUNT(*) FROM usuarios WHERE rol = 'SUPER_ADMINISTRADOR') <= 1")
 @Data
 @AllArgsConstructor
@@ -31,6 +30,8 @@ public class Usuario {
 
     private String nombre;
     private String apellido;
+
+    @Column(unique = true, nullable = false)
     private String email;
     private String celular;
     private String password;
