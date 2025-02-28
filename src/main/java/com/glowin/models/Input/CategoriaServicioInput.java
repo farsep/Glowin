@@ -6,4 +6,7 @@ public record CategoriaServicioInput(
         @NotBlank
         String nombre
 ) {
+        public String getNombre() {
+                return nombre;
+        }
 }

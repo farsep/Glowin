@@ -196,6 +196,7 @@
 - ✅ `200 OK` - Empleado eliminado correctamente.
 - ❌ `404 Not Found` - Si el empleado no existe.
 
+---
 
 ## 📂 Categorías de Servicios
 
@@ -256,4 +257,105 @@
 #### 👤 Respuestas
 - ✅ `200 OK` - Categoría eliminada correctamente.
 - ❌ `404 Not Found` - Si la categoría no existe.  
+
+---
+
+## 🛠️ Servicios
+
+### 🟢 Obtener un servicio por ID
+**📌 Endpoint:** `GET /servicios/{id}`
+
+**📖 Descripción:** Obtiene un servicio específico por su ID.
+
+**📥 Parámetros:**
+| Parámetro | Tipo | Descripción |
+|-----------|------|-------------|
+| `id` | Long | ID del servicio a buscar |
+
+**📤 Respuestas:**
+- ✅ `200 OK` - Retorna el servicio en formato JSON.
+- ❌ `404 Not Found` - Si el servicio no existe.
+
+---
+
+### 🟢 Obtener todos los servicios
+**📌 Endpoint:** `GET /servicios/all`
+
+**📖 Descripción:** Obtiene la lista de todos los servicios registrados.
+
+**📤 Respuestas:**
+- ✅ `200 OK` - Retorna una lista de servicios en formato JSON.
+
+---
+
+### 🟢 Registrar un servicio
+**📌 Endpoint:** `POST /servicios`
+
+**📖 Descripción:** Registra un nuevo servicio en el sistema.
+🔹 **Se puede proporcionar una categoría de dos formas:** enviando el `categoriaId` o enviando un objeto `categoria` con los datos de la nueva categoría.
+
+**📥 Cuerpo de la solicitud (`JSON`):**
+```json
+{
+  "nombre": "string",
+  "descripcion": "string",
+  "duracionMinutos": "integer",
+  "costo": "number",
+  "cantidadSesiones": "integer",
+  "categoriaId": "Long (opcional)",
+  "categoria": {
+    "nombre": "string (opcional)"
+  }
+}
+```
+🔹 **Debe incluir `categoriaId` (ID de la categoría existente) o un objeto `categoria` con los datos de la nueva categoría.**
+
+**📤 Respuestas:**
+- ✅ `201 Created` - Servicio creado exitosamente.
+- ❌ `400 Bad Request` - Si no se proporciona `categoriaId` ni `categoria`.
+
+---
+
+### 🟢 Actualizar un servicio
+**📌 Endpoint:** `PUT /servicios/{id}`
+
+**📖 Descripción:** Actualiza los datos de un servicio existente.
+
+**📥 Parámetros:**
+| Parámetro | Tipo | Descripción |
+|-----------|------|-------------|
+| `id` | Long | ID del servicio a actualizar |
+
+**📥 Cuerpo de la solicitud (`JSON`):**
+```json
+{
+  "nombre": "string",
+  "descripcion": "string",
+  "duracionMinutos": "integer",
+  "costo": "number",
+  "cantidadSesiones": "integer",
+  "categoriaId": "Long (opcional)"
+}
+```
+
+**📤 Respuestas:**
+- ✅ `200 OK` - Servicio actualizado correctamente.
+- ❌ `404 Not Found` - Si el servicio no existe.
+- ❌ `400 Bad Request` - Si `categoriaId` no existe.
+
+---
+
+### 🟢 Eliminar un servicio
+**📌 Endpoint:** `DELETE /servicios/{id}`
+
+**📖 Descripción:** Elimina un servicio por su ID.
+
+**📥 Parámetros:**
+| Parámetro | Tipo | Descripción |
+|-----------|------|-------------|
+| `id` | Long | ID del servicio a eliminar |
+
+**📤 Respuestas:**
+- ✅ `200 OK` - Servicio eliminado correctamente.
+- ❌ `404 Not Found` - Si el servicio no existe.
 

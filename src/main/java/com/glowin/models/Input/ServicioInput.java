@@ -1,5 +1,6 @@
 package com.glowin.models.Input;
 
+import com.glowin.models.CategoriaServicio;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -26,6 +27,8 @@ public record ServicioInput(
         @NotNull
         Integer cantidadSesiones,
 
-        Long categoriaId
+        Long categoriaId, // Opción 1: Enviar solo el ID de la categoría
+
+        CategoriaServicioInput categoria // Opción 2: Enviar una categoría completa
 ) {
 }

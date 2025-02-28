@@ -1,5 +1,7 @@
 package com.glowin.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.glowin.models.Input.ServicioInput;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -26,13 +28,16 @@ public class Servicio {
     private BigDecimal costo;
     private Integer cantidadSesiones;
 
+    @JsonBackReference // Evita la serialización cíclica con `CategoriaServicio`
     @ManyToOne
     @JoinColumn(name = "id_categoria", nullable = false)
     private CategoriaServicio categoria;
 
+    @JsonIgnore // Evita loops en la serialización
     @OneToMany(mappedBy = "servicio")
     private Set<Reserva> reservas;
 
+    @JsonIgnore // Evita loops con empleados
     @ManyToMany
     @JoinTable(
             name = "servicio_empleado",

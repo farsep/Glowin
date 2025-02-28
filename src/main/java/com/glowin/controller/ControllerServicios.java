@@ -1,5 +1,6 @@
 package com.glowin.controller;
 
+import com.glowin.models.CategoriaServicio;
 import com.glowin.models.Input.ServicioInput;
 import com.glowin.models.Servicio;
 import com.glowin.models.Update.ServicioUpdate;
@@ -50,11 +51,35 @@ public class ControllerServicios {
     @Transactional
     @PostMapping
     public ResponseEntity<ServicioOutput> registerServicio(@RequestBody ServicioInput servicioInput) {
-        Servicio servicio = new Servicio(servicioInput, categoriaServicioRepository.findById(servicioInput.categoriaId()).orElseThrow());
+        CategoriaServicio categoria;
+
+        // Si se envía categoriaId, buscamos la categoría en la BD
+        if (servicioInput.categoriaId() != null) {
+            categoria = categoriaServicioRepository.findById(servicioInput.categoriaId())
+                    .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+        }
+        // Si se envía una categoría completa, verificamos si ya existe o la creamos
+        else if (servicioInput.categoria() != null) {
+            String nombreCategoria = servicioInput.categoria().nombre(); // Usar el getter correcto
+
+            categoria = categoriaServicioRepository.findByNombre(nombreCategoria)
+                    .orElseGet(() -> {
+                        CategoriaServicio nuevaCategoria = new CategoriaServicio(servicioInput.categoria()); // Convierte el DTO en entidad
+                        return categoriaServicioRepository.save(nuevaCategoria);
+                    });
+        }
+        // Si no se envió ni categoriaId ni categoría completa, lanzamos error
+        else {
+            throw new RuntimeException("Debe proporcionar un categoriaId o una categoría completa");
+        }
+
+        Servicio servicio = new Servicio(servicioInput, categoria);
         servicioRepository.save(servicio);
+
         return ResponseEntity.created(
-                ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-                        .buildAndExpand(servicio.getId()).toUri()).body(new ServicioOutput(servicio));
+                        ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+                                .buildAndExpand(servicio.getId()).toUri())
+                .body(new ServicioOutput(servicio));
     }
 
     @PutMapping("/{id}")
@@ -70,7 +95,12 @@ public class ControllerServicios {
             if (servicioUpdate.duracionMinutos() != null) servicio.setDuracionMinutos(servicioUpdate.duracionMinutos());
             if (servicioUpdate.costo() != null) servicio.setCosto(servicioUpdate.costo());
             if (servicioUpdate.cantidadSesiones() != null) servicio.setCantidadSesiones(servicioUpdate.cantidadSesiones());
-            if (servicioUpdate.categoria() != null) {servicio.setCategoria(servicioUpdate.categoria());
+
+            // Manejo correcto de la categoría
+            if (servicioUpdate.categoriaId() != null) {
+                CategoriaServicio nuevaCategoria = categoriaServicioRepository.findById(servicioUpdate.categoriaId())
+                        .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+                servicio.setCategoria(nuevaCategoria);
             }
 
             servicioRepository.save(servicio);
@@ -80,7 +110,6 @@ public class ControllerServicios {
             return ResponseEntity.notFound().build();
         }
     }
-
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deleteServicio(@PathVariable Long id) {
