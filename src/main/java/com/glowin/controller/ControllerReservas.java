@@ -12,14 +12,20 @@ import com.glowin.repository.IServicioRepository;
 import com.glowin.repository.IUsuarioRepository;
 import com.google.gson.JsonObject;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -52,7 +58,7 @@ public class ControllerReservas {
 
     @Transactional
     @PostMapping
-    public ResponseEntity<ReservaOutput> registerReserva(@RequestBody ReservaInput reserva) {
+    public ResponseEntity<ReservaOutput> registerReserva(@Valid @RequestBody ReservaInput reserva) {
         Optional<Usuario> usuario = usuarioRepo.findById(reserva.idCliente());
         Optional<Servicio> servicio = servicioRepo.findById(reserva.idServicio());
         Optional<Empleado> empleado = empleadoRepo.findById(reserva.idEmpleado());
@@ -83,5 +89,19 @@ public class ControllerReservas {
 
     public ReservaOutput ConvertToOutput(Reserva reserva) {
         return new ReservaOutput(reserva, reserva.getEmpleado(), reserva.getCliente(), reserva.getServicio());
+    }
+
+    @ControllerAdvice
+    public class GlobalExceptionHandler {
+        @ExceptionHandler(MethodArgumentNotValidException.class)
+        public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+            Map<String, String> errors = new HashMap<>();
+            ex.getBindingResult().getAllErrors().forEach((error) -> {
+                String fieldName = ((FieldError) error).getField();
+                String errorMessage = error.getDefaultMessage();
+                errors.put(fieldName, errorMessage);
+            });
+            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+        }
     }
 }

@@ -18,6 +18,7 @@ public record UsuarioInput(
         String nombre,
         @NotBlank
         String apellido,
+        @NotBlank
         @Email
         String email,
         @NotBlank
@@ -26,10 +27,8 @@ public record UsuarioInput(
         String password,
         @NotBlank
         String rol,
-        @NotBlank
         @JsonFormat(pattern = "yyyy-MM-dd")
         LocalDate fechaRegistro,
-        @NotBlank
         @JsonFormat(pattern = "HH:mm:ss")
         LocalTime horaRegistro){
 }

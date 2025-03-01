@@ -9,9 +9,13 @@ import com.glowin.repository.ICategoriaServicioRepository;
 import com.glowin.repository.IServicioRepository;
 import com.google.gson.JsonObject;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -50,7 +54,7 @@ public class ControllerServicios {
 
     @Transactional
     @PostMapping
-    public ResponseEntity<ServicioOutput> registerServicio(@RequestBody ServicioInput servicioInput) {
+    public ResponseEntity<ServicioOutput> registerServicio(@Valid @RequestBody ServicioInput servicioInput) {
         CategoriaServicio categoria;
 
         // Si se envía categoriaId, buscamos la categoría en la BD
@@ -83,7 +87,7 @@ public class ControllerServicios {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateServicio(@PathVariable Long id, @RequestBody ServicioUpdate servicioUpdate) {
+    public ResponseEntity<?> updateServicio(@PathVariable Long id, @Valid @RequestBody ServicioUpdate servicioUpdate) {
         Optional<Servicio> optionalServicio = servicioRepository.findById(id);
 
         if (optionalServicio.isPresent()) {
@@ -125,6 +129,20 @@ public class ControllerServicios {
             return ResponseEntity.ok(response);
         } else {
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    @ControllerAdvice
+    public class GlobalExceptionHandler {
+        @ExceptionHandler(MethodArgumentNotValidException.class)
+        public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+            Map<String, String> errors = new HashMap<>();
+            ex.getBindingResult().getAllErrors().forEach((error) -> {
+                String fieldName = ((FieldError) error).getField();
+                String errorMessage = error.getDefaultMessage();
+                errors.put(fieldName, errorMessage);
+            });
+            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         }
     }
 }

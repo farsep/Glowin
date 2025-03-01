@@ -7,9 +7,12 @@ import com.glowin.models.enums.Rol;
 import com.glowin.models.output.UsuarioOutput;
 import com.glowin.repository.IUsuarioRepository;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.time.LocalDate;
@@ -46,7 +49,7 @@ public class ControllerUsuarios {
 
     @Transactional
     @PostMapping
-    public ResponseEntity<?> registerUser(@RequestBody UsuarioInput usuarioInput) {
+    public ResponseEntity<?> registerUser(@Valid @RequestBody UsuarioInput usuarioInput) {
 
         // valida si el email ya está en uso
         if (usuarioRepository.existsByEmail(usuarioInput.email())) {
@@ -77,7 +80,7 @@ public class ControllerUsuarios {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody UsuarioUpdate usuarioUpdate) {
+    public ResponseEntity<?> updateUser(@PathVariable Long id, @Valid @RequestBody UsuarioUpdate usuarioUpdate) {
         Optional<Usuario> optionalUser = usuarioRepository.findById(id);
 
         if (optionalUser.isPresent()) {
@@ -170,6 +173,20 @@ public class ControllerUsuarios {
                 "status", "200",
                 "timestamp", LocalDate.now().toString()
         ));
+    }
+
+    @ControllerAdvice
+    public class GlobalExceptionHandler {
+        @ExceptionHandler(MethodArgumentNotValidException.class)
+        public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+            Map<String, String> errors = new HashMap<>();
+            ex.getBindingResult().getAllErrors().forEach((error) -> {
+                String fieldName = ((FieldError) error).getField();
+                String errorMessage = error.getDefaultMessage();
+                errors.put(fieldName, errorMessage);
+            });
+            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+        }
     }
 
 }

@@ -6,8 +6,12 @@ import com.glowin.models.Update.EmpleadoUpdate;
 import com.glowin.models.output.EmpleadoOutput;
 import com.glowin.repository.IEmpleadoRepository;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -43,7 +47,7 @@ public class ControllerEmpleados {
 
     @Transactional
     @PostMapping
-    public ResponseEntity<?> registerEmpleado(@RequestBody EmpleadoInput empleadoInput) {
+    public ResponseEntity<?> registerEmpleado(@Valid @RequestBody EmpleadoInput empleadoInput) {
         Empleado empleado = new Empleado(empleadoInput);
         empleadoRepository.save(empleado);
         return ResponseEntity.created(
@@ -91,5 +95,19 @@ public class ControllerEmpleados {
         if (empleadoUpdate.dni() != null) empleado.setDni(empleadoUpdate.dni());
         if (empleadoUpdate.fechaRegistro() != null) empleado.setFechaRegistro(empleadoUpdate.fechaRegistro());
         if (empleadoUpdate.tipoJornada() != null) empleado.setTipoJornada(empleadoUpdate.tipoJornada());
+    }
+
+    @ControllerAdvice
+    public class GlobalExceptionHandler {
+        @ExceptionHandler(MethodArgumentNotValidException.class)
+        public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+            Map<String, String> errors = new HashMap<>();
+            ex.getBindingResult().getAllErrors().forEach((error) -> {
+                String fieldName = ((FieldError) error).getField();
+                String errorMessage = error.getDefaultMessage();
+                errors.put(fieldName, errorMessage);
+            });
+            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+        }
     }
 }
