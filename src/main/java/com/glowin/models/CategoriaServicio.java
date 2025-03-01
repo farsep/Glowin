@@ -25,11 +25,15 @@ public class CategoriaServicio {
     @Column(name = "nombre", nullable = false, unique = true)
     private String nombre;
 
+    @Column(name = "url_imagen", nullable = false)
+    private String urlImagen;
+
     @JsonManagedReference // Maneja la relación bidireccional con `Servicio`
     @OneToMany(mappedBy = "categoria")
     private Set<Servicio> servicios;
 
     public CategoriaServicio(CategoriaServicioInput categoriaServicio) {
         this.nombre = categoriaServicio.nombre();
+        this.urlImagen = categoriaServicio.urlImagen();
     }
 }
