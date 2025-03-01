@@ -5,9 +5,9 @@
 ### 🟢 Obtener un usuario por ID
 **📌 Endpoint:** `GET /usuarios/{id}`
 
-**📖 Descripción:** Obtiene un usuario específico por su ID.
+**📚 Descripción:** Obtiene un usuario específico por su ID.
 
-**📥 Parámetros:**
+**👥 Parámetros:**
 | Parámetro | Tipo | Descripción |
 |-----------|------|-------------|
 | `id` | Long | ID del usuario a buscar |
@@ -21,7 +21,7 @@
 ### 🟢 Obtener todos los usuarios
 **📌 Endpoint:** `GET /usuarios/all`
 
-**📖 Descripción:** Obtiene la lista de todos los usuarios registrados.
+**📚 Descripción:** Obtiene la lista de todos los usuarios registrados.
 
 **📤 Respuestas:**
 - ✅ `200 OK` - Retorna una lista de usuarios en formato JSON.
@@ -31,7 +31,7 @@
 ### 🟢 Registrar un usuario
 **📌 Endpoint:** `POST /usuarios`
 
-**📖 Descripción:** Registra un nuevo usuario en el sistema.
+**📚 Descripción:** Registra un nuevo usuario en el sistema.
 
 **📥 Cuerpo de la solicitud (`JSON`):**
 ```json
@@ -49,16 +49,16 @@
 
 **📤 Respuestas:**
 - ✅ `201 Created` - Usuario creado exitosamente.
-- ❌ `409 Conflict` - Si ya existe un usuario con el rol `SUPER_ADMINISTRADOR`.
+- ❌ `409 Conflict` - Si el email ya está en uso o si ya existe un usuario con el rol `SUPER_ADMINISTRADOR`.
 
 ---
 
 ### 🟢 Actualizar un usuario
 **📌 Endpoint:** `PUT /usuarios/{id}`
 
-**📖 Descripción:** Actualiza los datos de un usuario existente.
+**📚 Descripción:** Actualiza los datos de un usuario existente.
 
-**📥 Parámetros:**
+**👥 Parámetros:**
 | Parámetro | Tipo | Descripción |
 |-----------|------|-------------|
 | `id` | Long | ID del usuario a actualizar |
@@ -80,25 +80,29 @@
 **📤 Respuestas:**
 - ✅ `200 OK` - Usuario actualizado correctamente.
 - ❌ `404 Not Found` - Si el usuario no existe.
-- ❌ `409 Conflict` - Si se intenta asignar el rol `SUPER_ADMINISTRADOR` y ya existe otro.
+- ❌ `409 Conflict` - Si se intenta asignar el rol `SUPER_ADMINISTRADOR` y ya existe otro, o si el email ya está en uso por otro usuario.
 
 ---
 
 ### 🟢 Eliminar un usuario
 **📌 Endpoint:** `DELETE /usuarios/{id}`
 
-**📖 Descripción:** Elimina un usuario por su ID.
+**📚 Descripción:** Elimina un usuario por su ID.
 
-**📥 Parámetros:**
+**👥 Parámetros:**
 | Parámetro | Tipo | Descripción |
 |-----------|------|-------------|
 | `id` | Long | ID del usuario a eliminar |
+| `nuevoSuperAdminId` | Long | (Opcional) ID del nuevo SUPER_ADMINISTRADOR si se elimina uno existente |
 
 **📤 Respuestas:**
 - ✅ `200 OK` - Usuario eliminado correctamente.
 - ❌ `404 Not Found` - Si el usuario no existe.
+- ❌ `409 Conflict` - Si el usuario es `SUPER_ADMINISTRADOR` y no se ha asignado uno nuevo.
+
 
 ---
+
 
 ## 👷 Empleados
 
@@ -196,6 +200,7 @@
 - ✅ `200 OK` - Empleado eliminado correctamente.
 - ❌ `404 Not Found` - Si el empleado no existe.
 
+---
 
 ## 📂 Categorías de Servicios
 
@@ -257,3 +262,136 @@
 - ✅ `200 OK` - Categoría eliminada correctamente.
 - ❌ `404 Not Found` - Si la categoría no existe.  
 
+
+---
+
+
+## 🛠️ Servicios
+
+### 🟢 Obtener un servicio por ID
+**📌 Endpoint:** `GET /servicios/{id}`
+
+**📖 Descripción:** Obtiene un servicio específico por su ID.
+
+**📥 Parámetros:**
+| Parámetro | Tipo | Descripción |
+|-----------|------|-------------|
+| `id` | Long | ID del servicio a buscar |
+
+**📤 Respuestas:**
+- ✅ `200 OK` - Retorna el servicio en formato JSON.
+- ❌ `404 Not Found` - Si el servicio no existe.
+
+---
+
+### 🟢 Obtener todos los servicios
+**📌 Endpoint:** `GET /servicios/all`
+
+**📖 Descripción:** Obtiene la lista de todos los servicios registrados.
+
+**📤 Respuestas:**
+- ✅ `200 OK` - Retorna una lista de servicios en formato JSON.
+
+---
+
+### 🟢 Registrar un servicio
+**📌 Endpoint:** `POST /servicios`
+
+**📖 Descripción:** Registra un nuevo servicio en el sistema.
+🔹 **Se puede proporcionar una categoría de dos formas:** enviando el `categoriaId` o enviando un objeto `categoria` con los datos de la nueva categoría.
+
+**📥 Cuerpo de la solicitud (`JSON`):**
+```json
+{
+  "nombre": "string",
+  "descripcion": "string",
+  "duracionMinutos": "integer",
+  "costo": "number",
+  "cantidadSesiones": "integer",
+  "categoriaId": "Long (opcional)",
+  "categoria": {
+    "nombre": "string (opcional)"
+  }
+}
+```
+🔹 **Debe incluir `categoriaId` (ID de la categoría existente) o un objeto `categoria` con los datos de la nueva categoría.**
+
+**📤 Respuestas:**
+- ✅ `201 Created` - Servicio creado exitosamente.
+- ❌ `400 Bad Request` - Si no se proporciona `categoriaId` ni `categoria`.
+
+---
+
+### 🟢 Actualizar un servicio
+**📌 Endpoint:** `PUT /servicios/{id}`
+
+**📖 Descripción:** Actualiza los datos de un servicio existente.
+
+**📥 Parámetros:**
+| Parámetro | Tipo | Descripción |
+|-----------|------|-------------|
+| `id` | Long | ID del servicio a actualizar |
+
+**📥 Cuerpo de la solicitud (`JSON`):**
+```json
+{
+  "nombre": "string",
+  "descripcion": "string",
+  "duracionMinutos": "integer",
+  "costo": "number",
+  "cantidadSesiones": "integer",
+  "categoriaId": "Long (opcional)"
+}
+```
+
+**📤 Respuestas:**
+- ✅ `200 OK` - Servicio actualizado correctamente.
+- ❌ `404 Not Found` - Si el servicio no existe.
+- ❌ `400 Bad Request` - Si `categoriaId` no existe.
+
+---
+
+### 🟢 Eliminar un servicio
+**📌 Endpoint:** `DELETE /servicios/{id}`
+
+**📖 Descripción:** Elimina un servicio por su ID.
+
+**📥 Parámetros:**
+| Parámetro | Tipo | Descripción |
+|-----------|------|-------------|
+| `id` | Long | ID del servicio a eliminar |
+
+**📤 Respuestas:**
+- ✅ `200 OK` - Servicio eliminado correctamente.
+- ❌ `404 Not Found` - Si el servicio no existe.
+
+
+---
+
+## 🔑 Autenticación
+
+### 🟢 Login de usuario
+**📌 Endpoint:** `POST /auth/login`
+
+**📚 Descripción:** Permite a un usuario iniciar sesión con su email y password.
+
+**📥 Cuerpo de la solicitud (`JSON`):**
+```json
+{
+  "email": "string",
+  "password": "string"
+}
+```
+
+**📤 Respuestas:**
+- ✅ `200 OK` - Login exitoso. Retorna el rol del usuario y la URL de redirección correspondiente.
+- ❌ `404 Not Found` - Si el usuario no existe.
+
+**📤 Respuesta exitosa (`JSON`):**
+```json
+{
+  "message": "Login exitoso",
+  "rol": "SUPER_ADMINISTRADOR | ADMINISTRADOR | CLIENTE",
+  "redirectUrl": "/dashboard/superadmin | /dashboard/admin | /home"
+}
+```

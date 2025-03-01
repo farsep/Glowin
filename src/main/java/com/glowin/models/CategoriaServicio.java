@@ -1,5 +1,6 @@
 package com.glowin.models;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.glowin.models.Input.CategoriaServicioInput;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -24,6 +25,7 @@ public class CategoriaServicio {
     @Column(name = "nombre", nullable = false, unique = true)
     private String nombre;
 
+    @JsonManagedReference // Maneja la relación bidireccional con `Servicio`
     @OneToMany(mappedBy = "categoria")
     private Set<Servicio> servicios;
 
