@@ -6,12 +6,15 @@ import com.glowin.models.output.CategoriaServicioOutput;
 import com.glowin.repository.ICategoriaServicioRepository;
 import com.google.gson.JsonObject;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -51,7 +54,7 @@ public class ControllerCategoriasServicios {
 
     @Transactional
     @PostMapping
-    public ResponseEntity<CategoriaServicioOutput> registerCategoriaServicio(@RequestBody CategoriaServicioInput categoriaServicio) {
+    public ResponseEntity<CategoriaServicioOutput> registerCategoriaServicio(@Valid @RequestBody CategoriaServicioInput categoriaServicio) {
         // Convertir el nombre de la categoría a mayúsculas antes de guardarla
         CategoriaServicio nuevaCategoria = new CategoriaServicio(
                 new CategoriaServicioInput(categoriaServicio.nombre().toUpperCase(), categoriaServicio.urlImagen())
@@ -78,6 +81,20 @@ public class ControllerCategoriasServicios {
             response.put("status", "404");
             response.put("timestamp", LocalDate.now().toString());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+    }
+
+    @ControllerAdvice
+    public class GlobalExceptionHandler {
+        @ExceptionHandler(MethodArgumentNotValidException.class)
+        public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+            Map<String, String> errors = new HashMap<>();
+            ex.getBindingResult().getAllErrors().forEach((error) -> {
+                String fieldName = ((FieldError) error).getField();
+                String errorMessage = error.getDefaultMessage();
+                errors.put(fieldName, errorMessage);
+            });
+            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         }
     }
 }
