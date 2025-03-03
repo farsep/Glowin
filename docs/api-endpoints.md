@@ -395,3 +395,72 @@
   "redirectUrl": "/dashboard/superadmin | /dashboard/admin | /home"
 }
 ```
+
+---
+
+# 📂 API - Categorías de Servicios
+
+## 📌 Descripción
+Este módulo gestiona las categorías de servicios, permitiendo la obtención, creación y eliminación de categorías.
+
+## 📍 Endpoints
+
+### 🟢 Obtener todas las categorías
+**📌 Endpoint:** `GET /categorias-servicios/all`
+
+**📚 Descripción:** Obtiene una lista de todas las categorías de servicios disponibles.
+
+**📤 Respuestas:**
+- ✅ `200 OK` - Retorna una lista de categorías en formato JSON.
+
+---
+
+### 🟢 Obtener una categoría por ID
+**📌 Endpoint:** `GET /categorias-servicios/{id}`
+
+**📚 Descripción:** Obtiene una categoría de servicio específica por su ID.
+
+**👥 Parámetros:**
+| Parámetro | Tipo | Descripción |
+|-----------|------|-------------|
+| `id` | Long | ID de la categoría a buscar |
+
+**📤 Respuestas:**
+- ✅ `200 OK` - Retorna la categoría en formato JSON.
+- ❌ `404 Not Found` - Si la categoría no existe.
+
+---
+
+### 🟢 Registrar una nueva categoría
+**📌 Endpoint:** `POST /categorias-servicios`
+
+**📚 Descripción:** Registra una nueva categoría de servicio.
+
+**📥 Cuerpo de la solicitud (`JSON`):**
+```json
+{
+  "nombre": "string",
+  "urlImagen": "string"
+}
+```
+
+**📤 Respuestas:**
+- ✅ `201 Created` - Categoría creada exitosamente.
+
+---
+
+### 🟢 Eliminar una categoría
+**📌 Endpoint:** `DELETE /categorias-servicios/{id}`
+
+**📚 Descripción:** Elimina una categoría de servicio por su ID.
+
+**👥 Parámetros:**
+| Parámetro | Tipo | Descripción |
+|-----------|------|-------------|
+| `id` | Long | ID de la categoría a eliminar |
+
+**📤 Respuestas:**
+- ✅ `200 OK` - Categoría eliminada correctamente.
+- ❌ `404 Not Found` - Si la categoría no existe.
+
+

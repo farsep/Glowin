@@ -57,7 +57,7 @@ public class ControllerCategoriasServicios {
     public ResponseEntity<CategoriaServicioOutput> registerCategoriaServicio(@Valid @RequestBody CategoriaServicioInput categoriaServicio) {
         // Convertir el nombre de la categoría a mayúsculas antes de guardarla
         CategoriaServicio nuevaCategoria = new CategoriaServicio(
-                new CategoriaServicioInput(categoriaServicio.nombre().toUpperCase())
+                new CategoriaServicioInput(categoriaServicio.nombre().toUpperCase(), categoriaServicio.urlImagen())
         );
         categoriaServicioRepository.save(nuevaCategoria);
         return ResponseEntity.status(HttpStatus.CREATED).body(new CategoriaServicioOutput(nuevaCategoria));
