@@ -259,6 +259,31 @@ Todos los campos son opcionales. Solo se actualizarán aquellos que se incluyan.
 
 ---
 
+### 🟢 Actualizar una categoría
+**📌 Endpoint:** `PUT /categorias-servicios/{id}`
+
+**📚 Descripción:** Actualiza los datos de una categoría de servicio existente.
+
+**👥 Parámetros:**
+| Parámetro | Tipo | Descripción |
+|-----------|------|-------------|
+| `id` | Long | ID de la categoría a actualizar |
+
+**📥 Cuerpo de la solicitud (`JSON`):**
+```json
+{
+  "nombre": "string",
+  "urlImagen": "string"
+}
+```
+
+**📤 Respuestas:**
+- ✅ `200 OK` - Categoría actualizada exitosamente.
+- ❌ `404 Not Found` - Si la categoría no existe.
+- ❌ `400 Bad Request` - Si los datos enviados no son válidos.
+
+---
+
 ### 🟢 Registrar una nueva categoría
 **📌 Endpoint:** `POST /categorias-servicios`
 
@@ -274,6 +299,7 @@ Todos los campos son opcionales. Solo se actualizarán aquellos que se incluyan.
 
 **📤 Respuestas:**
 - ✅ `201 Created` - Categoría creada exitosamente.
+- ❌ `400 Bad Request` - Si los datos enviados no son válidos.
 
 ---
 
@@ -290,6 +316,31 @@ Todos los campos son opcionales. Solo se actualizarán aquellos que se incluyan.
 **📤 Respuestas:**
 - ✅ `200 OK` - Categoría eliminada correctamente.
 - ❌ `404 Not Found` - Si la categoría no existe.
+
+---
+
+### 🟢 Manejo de Errores
+#### ❌ Error de validación
+Si los datos enviados en una solicitud no cumplen con las reglas de validación, se retornará un `400 Bad Request` con un cuerpo de respuesta en el siguiente formato:
+
+```json
+{
+  "campo": "Mensaje de error"
+}
+```
+
+Ejemplo:
+```json
+{
+  "nombre": "El nombre es obligatorio"
+}
+```
+
+---
+
+
+
+
 
 ---
 
@@ -443,3 +494,5 @@ Donde `email` es el correo con el que el usuario se registró.
 - `404 Not Found` – Si no existe un usuario con el correo proporcionado.
 
 ---
+
+⏳ **Última actualización:** ${LocalDate.now()}

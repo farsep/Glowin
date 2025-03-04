@@ -53,6 +53,25 @@ public class ControllerCategoriasServicios {
     }
 
     @Transactional
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateCategoriaServicio(@PathVariable Long id, @Valid @RequestBody CategoriaServicioInput categoriaServicio) {
+        Optional<CategoriaServicio> categoriaServicioOptional = categoriaServicioRepository.findById(id);
+        if (categoriaServicioOptional.isPresent()) {
+            CategoriaServicio categoriaServicioActualizada = categoriaServicioOptional.get();
+            categoriaServicioActualizada.setNombre(categoriaServicio.nombre().toUpperCase());
+            categoriaServicioActualizada.setUrlImagen(categoriaServicio.urlImagen());
+            categoriaServicioRepository.save(categoriaServicioActualizada);
+            return ResponseEntity.ok(new CategoriaServicioOutput(categoriaServicioActualizada));
+        } else {
+            Map<String, String> response = new HashMap<>();
+            response.put("error", "Categoría no encontrada");
+            response.put("status", "404");
+            response.put("timestamp", LocalDate.now().toString());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+    }
+
+    @Transactional
     @PostMapping
     public ResponseEntity<CategoriaServicioOutput> registerCategoriaServicio(@Valid @RequestBody CategoriaServicioInput categoriaServicio) {
         // Convertir el nombre de la categoría a mayúsculas antes de guardarla
