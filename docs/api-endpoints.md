@@ -1,39 +1,62 @@
 # 📌 API Endpoints
 
+
 ## 👥 Usuarios
 
 ### 🟢 Obtener un usuario por ID
-**📌 Endpoint:** `GET /usuarios/{id}`
-
+**📌 Endpoint:** `GET /usuarios/{id}`  
 **📚 Descripción:** Obtiene un usuario específico por su ID.
 
-**👥 Parámetros:**
-| Parámetro | Tipo | Descripción |
-|-----------|------|-------------|
-| `id` | Long | ID del usuario a buscar |
+**👥 Parámetros de ruta:**
+
+| Parámetro | Tipo  | Descripción |
+|------------|------|-------------|
+| id         | Long | ID del usuario a buscar. |
 
 **📤 Respuestas:**
-- ✅ `200 OK` - Retorna el usuario en formato JSON.
-- ❌ `404 Not Found` - Si el usuario no existe.
+- `200 OK` – Retorna el usuario en formato JSON, por ejemplo:
+```json
+{
+  "id": 1,
+  "nombre": "Juan",
+  "apellido": "Pérez",
+  "rol": "CLIENTE"
+}
+```
+- `404 Not Found` – Si el usuario no existe.
 
 ---
 
 ### 🟢 Obtener todos los usuarios
 **📌 Endpoint:** `GET /usuarios/all`
-
 **📚 Descripción:** Obtiene la lista de todos los usuarios registrados.
 
 **📤 Respuestas:**
-- ✅ `200 OK` - Retorna una lista de usuarios en formato JSON.
+- `200 OK` – Retorna una lista de usuarios en formato JSON, por ejemplo:
+```json
+[
+  {
+    "id": 1,
+    "nombre": "Juan",
+    "apellido": "Pérez",
+    "rol": "CLIENTE"
+  },
+  {
+    "id": 2,
+    "nombre": "María",
+    "apellido": "Gómez",
+    "rol": "ADMINISTRADOR"
+  }
+]
+```
 
 ---
 
 ### 🟢 Registrar un usuario
 **📌 Endpoint:** `POST /usuarios`
+**📚 Descripción:** Registra un nuevo usuario en el sistema y envía un correo de confirmación.
 
-**📚 Descripción:** Registra un nuevo usuario en el sistema.
-
-**📥 Cuerpo de la solicitud (`JSON`):**
+**👥 Cuerpo de la solicitud (`JSON`):**
 ```json
 {
   "nombre": "string",
@@ -46,24 +69,27 @@
   "horaRegistro": "HH:mm:ss"
 }
 ```
+**Notas:**
+- El campo `rol` define el tipo de usuario.
+- `fechaRegistro` y `horaRegistro` son opcionales; si no se envían, se asignan valores por defecto en el servidor.
 
 **📤 Respuestas:**
-- ✅ `201 Created` - Usuario creado exitosamente.
-- ❌ `409 Conflict` - Si el email ya está en uso o si ya existe un usuario con el rol `SUPER_ADMINISTRADOR`.
+- `201 Created` – Usuario creado exitosamente.
+- `409 Conflict` – Si el email ya está en uso o si ya existe un usuario con el rol `SUPER_ADMINISTRADOR`.
 
 ---
 
 ### 🟢 Actualizar un usuario
 **📌 Endpoint:** `PUT /usuarios/{id}`
-
 **📚 Descripción:** Actualiza los datos de un usuario existente.
 
-**👥 Parámetros:**
-| Parámetro | Tipo | Descripción |
-|-----------|------|-------------|
-| `id` | Long | ID del usuario a actualizar |
+**👥 Parámetros de ruta:**
 
-**📥 Cuerpo de la solicitud (`JSON`):**
+| Parámetro | Tipo  | Descripción |
+|------------|------|-------------|
+| id         | Long | ID del usuario a actualizar. |
+
+**👥 Cuerpo de la solicitud (`JSON`):**
 ```json
 {
   "nombre": "string",
@@ -76,29 +102,32 @@
   "horaRegistro": "HH:mm:ss"
 }
 ```
+Todos los campos son opcionales. Solo se actualizarán aquellos que se incluyan.
 
 **📤 Respuestas:**
-- ✅ `200 OK` - Usuario actualizado correctamente.
-- ❌ `404 Not Found` - Si el usuario no existe.
-- ❌ `409 Conflict` - Si se intenta asignar el rol `SUPER_ADMINISTRADOR` y ya existe otro, o si el email ya está en uso por otro usuario.
+- `200 OK` – Usuario actualizado correctamente.
+- `404 Not Found` – Si el usuario no existe.
+- `409 Conflict` – Si se intenta:
+    - Asignar un email que ya está en uso por otro usuario.
+    - Asignar el rol `SUPER_ADMINISTRADOR` cuando ya existe uno en la base de datos.
 
 ---
 
 ### 🟢 Eliminar un usuario
 **📌 Endpoint:** `DELETE /usuarios/{id}`
-
-**📚 Descripción:** Elimina un usuario por su ID.
+**📚 Descripción:** Elimina un usuario por su ID. Si se intenta eliminar un usuario con rol `SUPER_ADMINISTRADOR`, se debe proporcionar un `nuevoSuperAdminId` para transferir el rol antes de eliminarlo.
 
 **👥 Parámetros:**
-| Parámetro | Tipo | Descripción |
-|-----------|------|-------------|
-| `id` | Long | ID del usuario a eliminar |
-| `nuevoSuperAdminId` | Long | (Opcional) ID del nuevo SUPER_ADMINISTRADOR si se elimina uno existente |
+
+| Parámetro | Tipo  | Descripción |
+|------------|------|-------------|
+| id         | Long | ID del usuario a eliminar. |
+| nuevoSuperAdminId | Long | (Opcional) ID del nuevo `SUPER_ADMINISTRADOR` si se está eliminando al actual. |
 
 **📤 Respuestas:**
-- ✅ `200 OK` - Usuario eliminado correctamente.
-- ❌ `404 Not Found` - Si el usuario no existe.
-- ❌ `409 Conflict` - Si el usuario es `SUPER_ADMINISTRADOR` y no se ha asignado uno nuevo.
+- `200 OK` – Usuario eliminado correctamente.
+- `404 Not Found` – Si el usuario no existe.
+- `409 Conflict` – Si el usuario es `SUPER_ADMINISTRADOR` y no se ha asignado uno nuevo.
 
 
 ---
@@ -207,9 +236,9 @@
 ### 🟢 Obtener todas las categorías
 **📌 Endpoint:** `GET /categorias-servicios/all`
 
-**📚 Descripción:** Obtiene la lista de todas las categorías de servicios registradas.
+**📚 Descripción:** Obtiene una lista de todas las categorías de servicios disponibles.
 
-#### 👤 Respuestas
+**📤 Respuestas:**
 - ✅ `200 OK` - Retorna una lista de categorías en formato JSON.
 
 ---
@@ -217,54 +246,103 @@
 ### 🟢 Obtener una categoría por ID
 **📌 Endpoint:** `GET /categorias-servicios/{id}`
 
-**📚 Descripción:** Obtiene una categoría específica por su ID.
+**📚 Descripción:** Obtiene una categoría de servicio específica por su ID.
 
-#### 👤 Parámetros
-| Parámetro | Tipo  | Descripción                      |
-|-----------|------|--------------------------------|
-| `id`      | Long | ID de la categoría a buscar. |
+**👥 Parámetros:**
+| Parámetro | Tipo | Descripción |
+|-----------|------|-------------|
+| `id` | Long | ID de la categoría a buscar |
 
-#### 👤 Respuestas
+**📤 Respuestas:**
 - ✅ `200 OK` - Retorna la categoría en formato JSON.
 - ❌ `404 Not Found` - Si la categoría no existe.
+
+---
+
+### 🟢 Actualizar una categoría
+**📌 Endpoint:** `PUT /categorias-servicios/{id}`
+
+**📚 Descripción:** Actualiza los datos de una categoría de servicio existente.
+
+**👥 Parámetros:**
+| Parámetro | Tipo | Descripción |
+|-----------|------|-------------|
+| `id` | Long | ID de la categoría a actualizar |
+
+**📥 Cuerpo de la solicitud (`JSON`):**
+```json
+{
+  "nombre": "string",
+  "urlImagen": "string"
+}
+```
+
+**📤 Respuestas:**
+- ✅ `200 OK` - Categoría actualizada exitosamente.
+- ❌ `404 Not Found` - Si la categoría no existe.
+- ❌ `400 Bad Request` - Si los datos enviados no son válidos.
 
 ---
 
 ### 🟢 Registrar una nueva categoría
 **📌 Endpoint:** `POST /categorias-servicios`
 
-**📚 Descripción:** Registra una nueva categoría en el sistema.  
-🔹 **El nombre de la categoría se guardará automáticamente en mayúsculas.**
+**📚 Descripción:** Registra una nueva categoría de servicio.
 
-#### 📂 Cuerpo de la solicitud (`JSON`)
+**📥 Cuerpo de la solicitud (`JSON`):**
 ```json
 {
-  "nombre": "string"
+  "nombre": "string",
+  "urlImagen": "string"
 }
 ```
 
-#### 👤 Respuestas
+**📤 Respuestas:**
 - ✅ `201 Created` - Categoría creada exitosamente.
+- ❌ `400 Bad Request` - Si los datos enviados no son válidos.
 
 ---
 
 ### 🟢 Eliminar una categoría
 **📌 Endpoint:** `DELETE /categorias-servicios/{id}`
 
-**📚 Descripción:** Elimina una categoría por su ID.
+**📚 Descripción:** Elimina una categoría de servicio por su ID.
 
-#### 👤 Parámetros
-| Parámetro | Tipo  | Descripción                      |
-|-----------|------|--------------------------------|
-| `id`      | Long | ID de la categoría a eliminar. |
+**👥 Parámetros:**
+| Parámetro | Tipo | Descripción |
+|-----------|------|-------------|
+| `id` | Long | ID de la categoría a eliminar |
 
-#### 👤 Respuestas
+**📤 Respuestas:**
 - ✅ `200 OK` - Categoría eliminada correctamente.
-- ❌ `404 Not Found` - Si la categoría no existe.  
-
+- ❌ `404 Not Found` - Si la categoría no existe.
 
 ---
 
+### 🟢 Manejo de Errores
+#### ❌ Error de validación
+Si los datos enviados en una solicitud no cumplen con las reglas de validación, se retornará un `400 Bad Request` con un cuerpo de respuesta en el siguiente formato:
+
+```json
+{
+  "campo": "Mensaje de error"
+}
+```
+
+Ejemplo:
+```json
+{
+  "nombre": "El nombre es obligatorio"
+}
+```
+
+---
+
+
+
+
+
+---
 
 ## 🛠️ Servicios
 
@@ -371,11 +449,10 @@
 ## 🔑 Autenticación
 
 ### 🟢 Login de usuario
-**📌 Endpoint:** `POST /auth/login`
-
+**📌 Endpoint:** `POST /auth/login`  
 **📚 Descripción:** Permite a un usuario iniciar sesión con su email y password.
 
-**📥 Cuerpo de la solicitud (`JSON`):**
+**👥 Cuerpo de la solicitud (`JSON`):**
 ```json
 {
   "email": "string",
@@ -384,10 +461,8 @@
 ```
 
 **📤 Respuestas:**
-- ✅ `200 OK` - Login exitoso. Retorna el rol del usuario y la URL de redirección correspondiente.
-- ❌ `404 Not Found` - Si el usuario no existe.
 
-**📤 Respuesta exitosa (`JSON`):**
+- `200 OK` – Login exitoso. Retorna un objeto con:
 ```json
 {
   "message": "Login exitoso",
@@ -395,72 +470,29 @@
   "redirectUrl": "/dashboard/superadmin | /dashboard/admin | /home"
 }
 ```
+- `404 Not Found` – Si no se encuentra un usuario con el correo proporcionado.
 
 ---
 
-# 📂 API - Categorías de Servicios
+### 🟢 Reenvío de correo de confirmación
+**📌 Endpoint:** `POST /auth/resend-confirmation`
+**📚 Descripción:** Permite reenviar el correo de confirmación a un usuario que ya se registró pero no recibió o perdió su correo de confirmación.
 
-## 📌 Descripción
-Este módulo gestiona las categorías de servicios, permitiendo la obtención, creación y eliminación de categorías.
-
-## 📍 Endpoints
-
-### 🟢 Obtener todas las categorías
-**📌 Endpoint:** `GET /categorias-servicios/all`
-
-**📚 Descripción:** Obtiene una lista de todas las categorías de servicios disponibles.
-
-**📤 Respuestas:**
-- ✅ `200 OK` - Retorna una lista de categorías en formato JSON.
-
----
-
-### 🟢 Obtener una categoría por ID
-**📌 Endpoint:** `GET /categorias-servicios/{id}`
-
-**📚 Descripción:** Obtiene una categoría de servicio específica por su ID.
-
-**👥 Parámetros:**
-| Parámetro | Tipo | Descripción |
-|-----------|------|-------------|
-| `id` | Long | ID de la categoría a buscar |
-
-**📤 Respuestas:**
-- ✅ `200 OK` - Retorna la categoría en formato JSON.
-- ❌ `404 Not Found` - Si la categoría no existe.
-
----
-
-### 🟢 Registrar una nueva categoría
-**📌 Endpoint:** `POST /categorias-servicios`
-
-**📚 Descripción:** Registra una nueva categoría de servicio.
-
-**📥 Cuerpo de la solicitud (`JSON`):**
+**👥 Cuerpo de la solicitud (`JSON`):**
 ```json
 {
-  "nombre": "string",
-  "urlImagen": "string"
+  "email": "string"
 }
 ```
+Donde `email` es el correo con el que el usuario se registró.
 
 **📤 Respuestas:**
-- ✅ `201 Created` - Categoría creada exitosamente.
+- `200 OK` – Se reenvía el correo de confirmación exitosamente.
+```json
+"Correo de confirmación reenviado a usuario@example.com"
+```
+- `404 Not Found` – Si no existe un usuario con el correo proporcionado.
 
 ---
 
-### 🟢 Eliminar una categoría
-**📌 Endpoint:** `DELETE /categorias-servicios/{id}`
-
-**📚 Descripción:** Elimina una categoría de servicio por su ID.
-
-**👥 Parámetros:**
-| Parámetro | Tipo | Descripción |
-|-----------|------|-------------|
-| `id` | Long | ID de la categoría a eliminar |
-
-**📤 Respuestas:**
-- ✅ `200 OK` - Categoría eliminada correctamente.
-- ❌ `404 Not Found` - Si la categoría no existe.
-
-
+⏳ **Última actualización:** ${LocalDate.now()}
