@@ -17,6 +17,17 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/glowin
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: admin
+
+      # Configuración para enviar correos por Gmail
+      SPRING_MAIL_HOST: "smtp.gmail.com"
+      SPRING_MAIL_PORT: "587"
+      SPRING_MAIL_USERNAME: "andavidp95@gmail.com"
+      SPRING_MAIL_PASSWORD: "sqen wiwo iqwy eukw"
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: "true"
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: "true"
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_SSL_TRUST: "smtp.gmail.com"
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_LOCALHOST: "127.0.0.1"
+
     ports:
       - "8080:8080"
     depends_on:
