@@ -6,6 +6,7 @@ import com.glowin.models.Usuario;
 import com.glowin.models.enums.Rol;
 import com.glowin.models.output.UsuarioOutput;
 import com.glowin.repository.IUsuarioRepository;
+import com.glowin.service.EmailService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,10 @@ public class ControllerUsuarios {
 
     @Autowired
     private IUsuarioRepository usuarioRepository;
+
+    // Agrega el servicio de email
+    @Autowired
+    private EmailService emailService;
 
 
     @GetMapping("/{id}")
@@ -51,7 +56,7 @@ public class ControllerUsuarios {
     @PostMapping
     public ResponseEntity<?> registerUser(@Valid @RequestBody UsuarioInput usuarioInput) {
 
-        // valida si el email ya está en uso
+        // (1) Verificaciones y guardado del usuario
         if (usuarioRepository.existsByEmail(usuarioInput.email())) {
             Map<String, String> response = new HashMap<>();
             response.put("error", "El email ya está en uso");
@@ -73,9 +78,44 @@ public class ControllerUsuarios {
 
         Usuario user = new Usuario(usuarioInput);
         usuarioRepository.save(user);
+
+        // (2) Texto del correo
+        String subject = "Registro exitoso en Glowin";
+        String text = String.format("""
+                Estimado/a %s,
+
+                ¡Tu registro ha sido exitoso!
+
+                Detalles de tu cuenta:
+                - Nombre de usuario: %s
+                - Correo electrónico: %s
+
+                Puedes iniciar sesión en tu cuenta utilizando el siguiente enlace:
+                http://localhost:8080/login
+
+                Si no has solicitado este registro, por favor ignora este correo.
+
+                Saludos,
+                Andrés
+                CEO de Glowin
+                """,
+                user.getNombre(),
+                user.getNombre(),
+                user.getEmail()
+        );
+
+        // (3) Envía el correo de confirmación
+        emailService.sendConfirmationEmail(
+                user.getEmail(),  // Destinatario
+                subject,          // Asunto
+                text              // Cuerpo del mensaje
+        );
+
+        // (4) Retornar la respuesta al frontend
         return ResponseEntity.created(
                 ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-                        .buildAndExpand(user.getId()).toUri()).body(new UsuarioOutput(user));
+                        .buildAndExpand(user.getId()).toUri()
+        ).body(new UsuarioOutput(user));
     }
 
 
