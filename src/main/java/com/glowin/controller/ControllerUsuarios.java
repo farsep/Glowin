@@ -94,7 +94,7 @@ public class ControllerUsuarios {
                 - Correo electrónico: %s
 
                 Puedes iniciar sesión en tu cuenta utilizando el siguiente enlace:
-                http://localhost:8080/login
+                http://localhost:8080/ingresar
 
                 Si no has solicitado este registro, por favor ignora este correo.
 

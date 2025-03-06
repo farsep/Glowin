@@ -24,7 +24,7 @@ public class AuthController {
     @Autowired
     private EmailService emailService;
 
-    @PostMapping("/login")
+    @PostMapping("/ingresar")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         Usuario usuario = usuarioRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
@@ -64,7 +64,7 @@ public class AuthController {
                 - Usuario: %s
                 - Correo: %s
 
-                Puedes iniciar sesión aquí: http://localhost:8080/login
+                Puedes iniciar sesión aquí: http://localhost:8080/ingresar
 
                 Si no has solicitado este registro, por favor ignora este correo.
 
