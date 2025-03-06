@@ -79,6 +79,9 @@ public class ControllerUsuarios {
         Usuario user = new Usuario(usuarioInput);
         usuarioRepository.save(user);
 
+        // Log mail properties
+        emailService.logMailProperties();
+
         // (2) Texto del correo
         String subject = "Registro exitoso en Glowin";
         String text = String.format("""
