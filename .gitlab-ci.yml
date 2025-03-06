@@ -30,7 +30,7 @@ build:
     - generate_version
   script:
     - export VERSION=$(cat VERSION)
-    - docker build \
+    - DOCKER_BUILDKIT=0 docker build \
       --build-arg "SPRING_MAIL_HOST=${SPRING_MAIL_HOST}" \
       --build-arg "SPRING_MAIL_PORT=${SPRING_MAIL_PORT}" \
       --build-arg "SPRING_MAIL_USERNAME=${SPRING_MAIL_USERNAME}" \
