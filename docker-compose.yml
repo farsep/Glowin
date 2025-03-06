@@ -12,7 +12,7 @@ services:
     restart: always
 
   app:
-    image: gravel3497/glowin:latest
+    image: gravel3497/glowin
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/glowin
       SPRING_DATASOURCE_USERNAME: postgres
