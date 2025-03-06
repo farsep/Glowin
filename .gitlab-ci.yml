@@ -13,7 +13,7 @@ generate_version:
     - docker-compose --version || { echo "Docker Compose is not installed"; exit 1; }
   script:
     - export VERSION=$(git describe --tags --always --dirty)
-    - echo "Generated version "$VERSION
+    - echo "Generated version $VERSION"
     - echo $VERSION > VERSION
   artifacts:
     paths:
@@ -30,10 +30,21 @@ build:
     - generate_version
   script:
     - export VERSION=$(cat VERSION)
-    - docker build -t gravel3497/glowin:$VERSION -t gravel3497/glowin:latest .
+    - DOCKER_BUILDKIT=0 docker build \
+      --build-arg "SPRING_MAIL_HOST=${SPRING_MAIL_HOST}" \
+      --build-arg "SPRING_MAIL_PORT=${SPRING_MAIL_PORT}" \
+      --build-arg "SPRING_MAIL_USERNAME=${SPRING_MAIL_USERNAME}" \
+      --build-arg "SPRING_MAIL_PASSWORD=${SPRING_MAIL_PASSWORD}" \
+      --build-arg "SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH=${SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH}" \
+      --build-arg "SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=${SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE}" \
+      --build-arg "SPRING_MAIL_PROPERTIES_MAIL_SMTP_SSL_TRUST=${SPRING_MAIL_PROPERTIES_MAIL_SMTP_SSL_TRUST}" \
+      --build-arg "SPRING_MAIL_PROPERTIES_MAIL_SMTP_LOCALHOST=${SPRING_MAIL_PROPERTIES_MAIL_SMTP_LOCALHOST}" \
+      -t "gravel3497/glowin:${VERSION}" \
+      -t "gravel3497/glowin:latest" \
+      .
     - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-    - docker push gravel3497/glowin:$VERSION
-    - docker push gravel3497/glowin:latest
+    - docker push "gravel3497/glowin:$VERSION"
+    - docker push "gravel3497/glowin:latest"
   only:
     - main
     - merge_requests
