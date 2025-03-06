@@ -3,21 +3,18 @@ stages:
   - deploy
 
 services:
-  - docker:dind  # Required for Docker-in-Docker (DinD)
-
-variables:
-  DOCKER_BUILDKIT: 1  # Explicitly enable BuildKit
-  DOCKER_CLI_EXPERIMENTAL: enabled  # Required for Buildx
+  - docker:dind
 
 generate_version:
   stage: build
-  image: docker
+  image: docker:latest
   before_script:
-    - docker info
+    - docker info || { echo "Docker is not running, it's necessary to verify"; exit 1; }
+    - docker-compose --version || { echo "Docker Compose is not installed"; exit 1; }
   script:
     - export VERSION=$(git describe --tags --always --dirty)
-    - echo "Generated version: ${VERSION}"
-    - echo "${VERSION}" > VERSION
+    - echo "Generated version $VERSION"
+    - echo "$VERSION" > VERSION
   artifacts:
     paths:
       - VERSION
@@ -27,16 +24,12 @@ generate_version:
 
 build:
   stage: deploy
-  image: docker
+  image: docker:latest
   needs: ["generate_version"]
-  before_script:
-    # Set up Docker Buildx
-    - docker buildx version
-    - docker buildx create --name mybuilder --use  # Create and use a builder instance
-    - docker buildx inspect --bootstrap  # Initialize the builder
+  dependencies:
+    - generate_version
   script:
     - export VERSION=$(cat VERSION)
-    # Build and push using Buildx
     - >-
       docker buildx build
       --build-arg "SPRING_MAIL_HOST=${SPRING_MAIL_HOST}"
@@ -49,10 +42,11 @@ build:
       --build-arg "SPRING_MAIL_PROPERTIES_MAIL_SMTP_LOCALHOST=${SPRING_MAIL_PROPERTIES_MAIL_SMTP_LOCALHOST}"
       -t "gravel3497/glowin:${VERSION}"
       -t "gravel3497/glowin:latest"
-      --push  # Push directly to registry (no separate docker push needed)
+      --push
       .
-    # Logout (optional)
-    - docker logout
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+    - docker push "gravel3497/glowin:$VERSION"
+    - docker push "gravel3497/glowin:latest"
   only:
     - main
     - merge_requests
