@@ -2,10 +2,6 @@
 FROM maven:3.9.9-amazoncorretto-23 AS build
 WORKDIR /app
 
-# Set environment variables
-ENV SPRING_DATASOURCE_USERNAME=postgres
-ENV SPRING_DATASOURCE_PASSWORD=admin
-
 # Define build arguments
 ARG SPRING_MAIL_HOST
 ARG SPRING_MAIL_PORT

@@ -15,6 +15,8 @@ services:
     image: gravel3497/glowin:latest
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/glowin
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: admin
     ports:
       - "8080:8080"
     depends_on:
