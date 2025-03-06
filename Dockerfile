@@ -2,6 +2,12 @@
 FROM maven:3.9.9-amazoncorretto-23 AS build
 WORKDIR /app
 
+# Define ENV VARS FOR DB
+ENV SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/glowin
+ENV SPRING_DATASOURCE_USERNAME: postgres
+ENV SPRING_DATASOURCE_PASSWORD: admin
+
+
 # Define build arguments
 ARG SPRING_MAIL_HOST
 ARG SPRING_MAIL_PORT
