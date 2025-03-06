@@ -3,18 +3,21 @@ stages:
   - deploy
 
 services:
-  - docker:dind
+  - docker:dind  # Required for Docker-in-Docker (DinD)
+
+variables:
+  DOCKER_BUILDKIT: 1  # Explicitly enable BuildKit
+  DOCKER_CLI_EXPERIMENTAL: enabled  # Required for Buildx
 
 generate_version:
   stage: build
-  image: docker:latest
+  image: docker
   before_script:
-    - docker info || { echo "Docker is not running, it's necessary to verify"; exit 1; }
-    - docker-compose --version || { echo "Docker Compose is not installed"; exit 1; }
+    - docker info
   script:
     - export VERSION=$(git describe --tags --always --dirty)
-    - echo "Generated version $VERSION"
-    - echo $VERSION > VERSION
+    - echo "Generated version: ${VERSION}"
+    - echo "${VERSION}" > VERSION
   artifacts:
     paths:
       - VERSION
@@ -24,27 +27,32 @@ generate_version:
 
 build:
   stage: deploy
-  image: docker:latest
+  image: docker
   needs: ["generate_version"]
-  dependencies:
-    - generate_version
+  before_script:
+    # Set up Docker Buildx
+    - docker buildx version
+    - docker buildx create --name mybuilder --use  # Create and use a builder instance
+    - docker buildx inspect --bootstrap  # Initialize the builder
   script:
     - export VERSION=$(cat VERSION)
-    - DOCKER_BUILDKIT=0 docker build \
-      --build-arg "SPRING_MAIL_HOST=${SPRING_MAIL_HOST}" \
-      --build-arg "SPRING_MAIL_PORT=${SPRING_MAIL_PORT}" \
-      --build-arg "SPRING_MAIL_USERNAME=${SPRING_MAIL_USERNAME}" \
-      --build-arg "SPRING_MAIL_PASSWORD=${SPRING_MAIL_PASSWORD}" \
-      --build-arg "SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH=${SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH}" \
-      --build-arg "SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=${SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE}" \
-      --build-arg "SPRING_MAIL_PROPERTIES_MAIL_SMTP_SSL_TRUST=${SPRING_MAIL_PROPERTIES_MAIL_SMTP_SSL_TRUST}" \
-      --build-arg "SPRING_MAIL_PROPERTIES_MAIL_SMTP_LOCALHOST=${SPRING_MAIL_PROPERTIES_MAIL_SMTP_LOCALHOST}" \
-      -t "gravel3497/glowin:${VERSION}" \
-      -t "gravel3497/glowin:latest" \
+    # Build and push using Buildx
+    - >-
+      docker buildx build
+      --build-arg "SPRING_MAIL_HOST=${SPRING_MAIL_HOST}"
+      --build-arg "SPRING_MAIL_PORT=${SPRING_MAIL_PORT}"
+      --build-arg "SPRING_MAIL_USERNAME=${SPRING_MAIL_USERNAME}"
+      --build-arg "SPRING_MAIL_PASSWORD=${SPRING_MAIL_PASSWORD}"
+      --build-arg "SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH=${SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH}"
+      --build-arg "SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE=${SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE}"
+      --build-arg "SPRING_MAIL_PROPERTIES_MAIL_SMTP_SSL_TRUST=${SPRING_MAIL_PROPERTIES_MAIL_SMTP_SSL_TRUST}"
+      --build-arg "SPRING_MAIL_PROPERTIES_MAIL_SMTP_LOCALHOST=${SPRING_MAIL_PROPERTIES_MAIL_SMTP_LOCALHOST}"
+      -t "gravel3497/glowin:${VERSION}"
+      -t "gravel3497/glowin:latest"
+      --push  # Push directly to registry (no separate docker push needed)
       .
-    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-    - docker push "gravel3497/glowin:$VERSION"
-    - docker push "gravel3497/glowin:latest"
+    # Logout (optional)
+    - docker logout
   only:
     - main
     - merge_requests
