@@ -1,5 +1,6 @@
 package com.glowin.security.jwt;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,7 +21,7 @@ public class FiltroAutenticacionJwt extends OncePerRequestFilter {
     private final ProveedorJwt proveedorJwt;
     private final UserDetailsService servicioDetallesUsuario;
 
-    public FiltroAutenticacionJwt(ProveedorJwt proveedorJwt, UserDetailsService servicioDetallesUsuario) {
+    public FiltroAutenticacionJwt(ProveedorJwt proveedorJwt, @Qualifier("customUserDetailsService") UserDetailsService servicioDetallesUsuario) {
         this.proveedorJwt = proveedorJwt;
         this.servicioDetallesUsuario = servicioDetallesUsuario;
     }
@@ -32,17 +33,14 @@ public class FiltroAutenticacionJwt extends OncePerRequestFilter {
         final String jwt;
         final String nombreUsuario;
 
-        // Verificar si el encabezado Authorization está presente y comienza con "Bearer "
         if (cabeceraAutorizacion == null || !cabeceraAutorizacion.startsWith("Bearer ")) {
             cadenaFiltros.doFilter(solicitud, respuesta);
             return;
         }
 
-        // Extraer el token JWT (eliminando "Bearer " del encabezado)
         jwt = cabeceraAutorizacion.substring(7);
         nombreUsuario = proveedorJwt.extraerNombreUsuario(jwt);
 
-        // Validar el token y establecer la autenticación en el contexto de seguridad
         if (nombreUsuario != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails detallesUsuario = this.servicioDetallesUsuario.loadUserByUsername(nombreUsuario);
             if (proveedorJwt.validarToken(jwt, detallesUsuario)) {
@@ -53,7 +51,6 @@ public class FiltroAutenticacionJwt extends OncePerRequestFilter {
             }
         }
 
-        // Continuar con la cadena de filtros
         cadenaFiltros.doFilter(solicitud, respuesta);
     }
 }

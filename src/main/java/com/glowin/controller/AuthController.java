@@ -4,6 +4,7 @@ import com.glowin.models.LoginRequest;
 import com.glowin.models.Usuario;
 import com.glowin.models.Input.ResendEmailRequest;
 import com.glowin.repository.IUsuarioRepository;
+import com.glowin.security.jwt.ProveedorJwt;
 import com.glowin.service.EmailService; // <-- Asegúrate de importar tu servicio de email
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
+import static com.glowin.models.enums.Rol.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -24,17 +27,25 @@ public class AuthController {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private ProveedorJwt proveedorJwt;
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-        Usuario usuario = usuarioRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        Optional<Usuario> usuario = Optional.ofNullable(usuarioRepository.findByEmail(request.getEmail()))
+                .filter(user -> user.getPassword().equals(request.getPassword()));
+        if (usuario.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
+        }
 
+        String jwt = proveedorJwt.generarToken(usuario.get());
         Map<String, String> response = new HashMap<>();
         response.put("message", "Login exitoso");
-        response.put("rol", usuario.getRol().toString());
+        response.put("rol", usuario.get().getRol().toString());
+        response.put("token", jwt);
 
         // URL de redirección según el rol
-        switch (usuario.getRol()) {
+        switch (usuario.get().getRol()) {
             case SUPER_ADMINISTRADOR -> response.put("redirectUrl", "/dashboard/superadmin");
             case ADMINISTRADOR -> response.put("redirectUrl", "/dashboard/admin");
             case CLIENTE -> response.put("redirectUrl", "/home");
@@ -46,7 +57,7 @@ public class AuthController {
     @PostMapping("/resend-confirmation")
     public ResponseEntity<?> resendConfirmationEmail(@RequestBody ResendEmailRequest request) {
         // 1. Buscar usuario por email
-        Optional<Usuario> optionalUser = usuarioRepository.findByEmail(request.email());
+        Optional<Usuario> optionalUser = Optional.ofNullable(usuarioRepository.findByEmail(request.email()));
         if (optionalUser.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("No existe un usuario con el correo: " + request.email());
