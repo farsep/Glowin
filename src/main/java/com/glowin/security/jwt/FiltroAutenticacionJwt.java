@@ -1,5 +1,9 @@
 package com.glowin.security.jwt;
 
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -9,48 +13,44 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Component
 public class FiltroAutenticacionJwt extends OncePerRequestFilter {
 
     private final ProveedorJwt proveedorJwt;
-    private final UserDetailsService servicioDetallesUsuario;
+    private final UserDetailsService userDetailsService;
 
-    public FiltroAutenticacionJwt(ProveedorJwt proveedorJwt, @Qualifier("customUserDetailsService") UserDetailsService servicioDetallesUsuario) {
+    public FiltroAutenticacionJwt(ProveedorJwt proveedorJwt, @Qualifier("customUserDetailsService") UserDetailsService userDetailsService) {
         this.proveedorJwt = proveedorJwt;
-        this.servicioDetallesUsuario = servicioDetallesUsuario;
+        this.userDetailsService = userDetailsService;
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest solicitud, HttpServletResponse respuesta, FilterChain cadenaFiltros)
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        final String cabeceraAutorizacion = solicitud.getHeader("Authorization");
+        final String authorizationHeader = request.getHeader("Authorization");
         final String jwt;
-        final String nombreUsuario;
+        final String username;
 
-        if (cabeceraAutorizacion == null || !cabeceraAutorizacion.startsWith("Bearer ")) {
-            cadenaFiltros.doFilter(solicitud, respuesta);
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
             return;
         }
 
-        jwt = cabeceraAutorizacion.substring(7);
-        nombreUsuario = proveedorJwt.extraerNombreUsuario(jwt);
+        jwt = authorizationHeader.substring(7);
+        username = proveedorJwt.extraerNombreUsuario(jwt);
 
-        if (nombreUsuario != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails detallesUsuario = this.servicioDetallesUsuario.loadUserByUsername(nombreUsuario);
-            if (proveedorJwt.validarToken(jwt, detallesUsuario)) {
-                UsernamePasswordAuthenticationToken tokenAutenticacion = new UsernamePasswordAuthenticationToken(
-                        detallesUsuario, null, detallesUsuario.getAuthorities());
-                tokenAutenticacion.setDetails(new WebAuthenticationDetailsSource().buildDetails(solicitud));
-                SecurityContextHolder.getContext().setAuthentication(tokenAutenticacion);
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+            if (proveedorJwt.validarToken(jwt, userDetails)) {
+                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities());
+                authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             }
         }
 
-        cadenaFiltros.doFilter(solicitud, respuesta);
+        filterChain.doFilter(request, response);
     }
 }

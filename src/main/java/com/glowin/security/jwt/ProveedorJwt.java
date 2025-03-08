@@ -21,7 +21,7 @@ public class ProveedorJwt {
     private String jwtSecreto;
 
     @Value("${jwt.expiracion}") // Tiempo de expiración del token en milisegundos
-    private int jwtExpiracion;
+    private Long jwtExpiracion;
 
     // Genera un token JWT
     public String generarToken(UserDetails detallesUsuario) {

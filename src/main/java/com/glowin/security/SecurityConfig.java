@@ -1,5 +1,6 @@
 package com.glowin.security;
 
+import com.glowin.repository.IUsuarioRepository;
 import com.glowin.security.jwt.FiltroAutenticacionJwt;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,6 +39,14 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/swagger-ui.html", "/v3/api-docs", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/usuarios/**").permitAll()
+                        .requestMatchers("/usuarios/**", "/servicios/**", "/empleados/**", "/categorias-servicios/**")
+                        .hasAnyRole("SUPER_ADMINISTRADOR", "ADMINISTRADOR")
+                        .requestMatchers(HttpMethod.GET, "/usuarios/**")
+                        .hasAnyRole("CLIENTE")
+                        .requestMatchers(HttpMethod.POST, "/usuarios/**")
+                        .hasAnyRole("CLIENTE")
+                        .requestMatchers(HttpMethod.PUT, "/usuarios/**")
+                        .hasAnyRole("CLIENTE")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
@@ -49,12 +58,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
-        return configuration.getAuthenticationManager();
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
     }
 }
