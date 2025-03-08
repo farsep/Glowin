@@ -36,7 +36,7 @@ public class AuthController {
     @Autowired
     private ProveedorJwt proveedorJwt;
 
-    @PostMapping("/login")
+    @PostMapping("/ingresar")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         try {
             // Find the user by email
