@@ -14,6 +14,7 @@ public record ServicioUpdate(
         Integer duracionMinutos,
         Integer cantidadSesiones,
         BigDecimal costo,
-        Long categoriaId
+        Long categoriaId,
+        CategoriaServicio categoria
 ) {
 }
