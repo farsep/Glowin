@@ -26,10 +26,7 @@ public record UsuarioInput(
         @NotBlank
         String password,
         @NotBlank
-        String rol,
-        @JsonFormat(pattern = "yyyy-MM-dd")
-        LocalDate fechaRegistro,
-        @JsonFormat(pattern = "HH:mm:ss")
-        LocalTime horaRegistro){
+        String rol
+){
 }
 // JSON no tiene un tipo LocalDate o LocalTime, las fechas suelen enviarse como String en formato "yyyy-MM-dd" y "HH:mm:ss"
