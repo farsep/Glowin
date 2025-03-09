@@ -33,6 +33,10 @@ public class Servicio {
     @JoinColumn(name = "id_categoria", nullable = false)
     private CategoriaServicio categoria;
 
+    @OneToMany(mappedBy = "servicio")
+    @JsonIgnore
+    private Set<ImagenServicio> imagenes;
+
     @JsonIgnore // Evita loops en la serialización
     @OneToMany(mappedBy = "servicio")
     private Set<Reserva> reservas;

@@ -1,0 +1,1 @@
+ALTER TABLE servicios DROP COLUMN url_imagen;

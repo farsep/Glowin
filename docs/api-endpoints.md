@@ -338,12 +338,6 @@ Ejemplo:
 
 ---
 
-
-
-
-
----
-
 ## 🛠️ Servicios
 
 ### 🟢 Obtener un servicio por ID
@@ -442,6 +436,100 @@ Ejemplo:
 **📤 Respuestas:**
 - ✅ `200 OK` - Servicio eliminado correctamente.
 - ❌ `404 Not Found` - Si el servicio no existe.
+
+---
+
+## 🖼️ Imágenes de Servicios
+
+### 🟢 Listar imágenes de un servicio
+**📌 Endpoint:** `GET /servicios/{idServicio}/imagenes`
+
+**📖 Descripción:** Obtiene todas las imágenes asociadas a un servicio específico.
+
+**📥 Parámetros:**
+| Parámetro | Tipo | Descripción |
+|-----------|------|-------------|
+| `idServicio` | Long | ID del servicio |
+
+**📤 Respuestas:**
+- ✅ `200 OK` - Lista de imágenes en formato JSON.
+- ❌ `404 Not Found` - Si el servicio no existe.
+
+---
+
+### 🟢 Obtener una imagen por ID
+**📌 Endpoint:** `GET /servicios/{idServicio}/imagenes/{idImagen}`
+
+**📖 Descripción:** Obtiene una imagen específica de un servicio.
+
+**📥 Parámetros:**
+| Parámetro | Tipo | Descripción |
+|-----------|------|-------------|
+| `idServicio` | Long | ID del servicio |
+| `idImagen` | Long | ID de la imagen |
+
+**📤 Respuestas:**
+- ✅ `200 OK` - Imagen en formato JSON.
+- ❌ `404 Not Found` - Si la imagen no existe.
+- ❌ `400 Bad Request` - Si la imagen no pertenece al servicio indicado.
+
+---
+
+### 🟢 Crear una imagen para un servicio
+**📌 Endpoint:** `POST /servicios/{idServicio}/imagenes`
+
+**📖 Descripción:** Crea una nueva imagen y la asocia a un servicio.
+
+**📥 Cuerpo de la solicitud (`JSON`):**
+```json
+{
+  "titulo": "string",
+  "descripcion": "string",
+  "urlImagen": "string",
+  "fechaCreacion": "yyyy-MM-dd (opcional)"
+}
+```
+
+**📤 Respuestas:**
+- ✅ `201 Created` - Imagen creada exitosamente.
+- ❌ `400 Bad Request` - Si la solicitud es inválida.
+- ❌ `404 Not Found` - Si el servicio no existe.
+
+---
+
+### 🟢 Actualizar una imagen
+**📌 Endpoint:** `PUT /servicios/{idServicio}/imagenes/{idImagen}`
+
+**📖 Descripción:** Actualiza una imagen existente.
+
+**📥 Cuerpo de la solicitud (`JSON`):**
+```json
+{
+  "titulo": "string (opcional)",
+  "descripcion": "string (opcional)",
+  "urlImagen": "string (opcional)",
+  "fechaCreacion": "yyyy-MM-dd (opcional)"
+}
+```
+
+**📤 Respuestas:**
+- ✅ `200 OK` - Imagen actualizada correctamente.
+- ❌ `404 Not Found` - Si la imagen no existe.
+- ❌ `400 Bad Request` - Si la imagen no pertenece al servicio.
+
+---
+
+### 🟢 Eliminar una imagen
+**📌 Endpoint:** `DELETE /servicios/{idServicio}/imagenes/{idImagen}`
+
+**📖 Descripción:** Elimina una imagen de un servicio.
+
+**📤 Respuestas:**
+- ✅ `200 OK` - Imagen eliminada correctamente.
+- ❌ `404 Not Found` - Si la imagen no existe.
+- ❌ `400 Bad Request` - Si la imagen no pertenece al servicio.
+
+
 
 
 ---
