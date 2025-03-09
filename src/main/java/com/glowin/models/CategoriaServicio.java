@@ -32,6 +32,7 @@ public class CategoriaServicio {
     @OneToMany(mappedBy = "categoria")
     private Set<Servicio> servicios;
 
+    // Constructor para crear una nueva categoría de servicio
     public CategoriaServicio(CategoriaServicioInput categoriaServicio) {
         this.nombre = categoriaServicio.nombre();
         this.urlImagen = categoriaServicio.urlImagen();
