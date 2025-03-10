@@ -7,7 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class GlowinApplication {
 
 	public static void main(String[] args) {
-		System.out.println(org.hibernate.Version.getVersionString());
 		SpringApplication.run(GlowinApplication.class, args);
 	}
 

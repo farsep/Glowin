@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +26,6 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/usuarios")
 public class ControllerUsuarios {
-
     @Autowired
     private IUsuarioRepository usuarioRepository;
 
@@ -55,7 +55,6 @@ public class ControllerUsuarios {
     @Transactional
     @PostMapping
     public ResponseEntity<?> registerUser(@Valid @RequestBody UsuarioInput usuarioInput) {
-
         // (1) Verificaciones y guardado del usuario
         if (usuarioRepository.existsByEmail(usuarioInput.email())) {
             Map<String, String> response = new HashMap<>();
@@ -79,6 +78,9 @@ public class ControllerUsuarios {
         Usuario user = new Usuario(usuarioInput);
         usuarioRepository.save(user);
 
+        // Log mail properties
+        emailService.logMailProperties();
+
         // (2) Texto del correo
         String subject = "Registro exitoso en Glowin";
         String text = String.format("""
@@ -91,7 +93,7 @@ public class ControllerUsuarios {
                 - Correo electrónico: %s
 
                 Puedes iniciar sesión en tu cuenta utilizando el siguiente enlace:
-                http://localhost:8080/login
+                http://localhost:8080/ingresar
 
                 Si no has solicitado este registro, por favor ignora este correo.
 
