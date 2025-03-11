@@ -90,22 +90,21 @@ public class ControllerUsuarios {
         // (2) Texto del correo
         String subject = "Registro exitoso en Glowin";
         String text = String.format("""
-                Estimado/a %s,
-
-                ¡Tu registro ha sido exitoso!
-
-                Detalles de tu cuenta:
-                - Nombre de usuario: %s
-                - Correo electrónico: %s
-
-                Puedes iniciar sesión en tu cuenta utilizando el siguiente enlace:
-                http://localhost:8080/ingresar
-
-                Si no has solicitado este registro, por favor ignora este correo.
-
-                Saludos,
-                Andrés
-                CEO de Glowin
+                <html>
+                <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+                <p>Estimado/a %s,</p>
+                <p>¡Tu registro ha sido exitoso!</p>
+                <p>Detalles de tu cuenta:</p>
+                <ul>
+                    <li>Nombre de usuario: %s</li>
+                    <li>Correo electrónico: %s</li>
+                </ul>
+                <p>Puedes iniciar sesión en tu cuenta utilizando el siguiente enlace:</p>
+                <a href="http://localhost/iniciar-sesion" style="color: #1a73e8;" target="_blank">Iniciar sesión</a>
+                <p>Si no has solicitado este registro, por favor ignora este correo.</p>
+                <p>Saludos,<br>Andrés<br>CEO de Glowin</p>
+                </body>
+                </html>
                 """,
                 user.getNombre(),
                 user.getNombre(),
