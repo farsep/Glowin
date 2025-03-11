@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
@@ -25,13 +26,16 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/usuarios")
 public class ControllerUsuarios {
-
     @Autowired
     private IUsuarioRepository usuarioRepository;
 
     // Agrega el servicio de email
     @Autowired
     private EmailService emailService;
+
+    // Agrega el codificador de contraseñas
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
 
     @GetMapping("/{id}")
@@ -55,7 +59,6 @@ public class ControllerUsuarios {
     @Transactional
     @PostMapping
     public ResponseEntity<?> registerUser(@Valid @RequestBody UsuarioInput usuarioInput) {
-
         // (1) Verificaciones y guardado del usuario
         if (usuarioRepository.existsByEmail(usuarioInput.email())) {
             Map<String, String> response = new HashMap<>();
@@ -77,6 +80,8 @@ public class ControllerUsuarios {
         }
 
         Usuario user = new Usuario(usuarioInput);
+        // Encriptar la contraseña
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         usuarioRepository.save(user);
 
         // Log mail properties
