@@ -29,6 +29,6 @@ public record ServicioInput(
 
         Long categoriaId, // Opción 1: Enviar solo el ID de la categoría
 
-        CategoriaServicioInput categoria // Opción 2: Enviar una categoría completa
+        String nombreCategoria // Opción 2: enviar solo el nombre de la categoría para buscar
 ) {
 }
