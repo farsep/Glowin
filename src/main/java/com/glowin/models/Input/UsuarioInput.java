@@ -4,11 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.glowin.models.enums.Rol;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-
-import java.io.Serializable;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import com.glowin.validation.ValidRol;
 
 /**
  * DTO for {@link com.glowin.models.Usuario}
@@ -26,6 +22,7 @@ public record UsuarioInput(
         @NotBlank
         String password,
         @NotBlank
+        @ValidRol
         String rol
 ){
 }

@@ -4,14 +4,13 @@ import com.glowin.models.LoginRequest;
 import com.glowin.models.Usuario;
 import com.glowin.models.Input.ResendEmailRequest;
 import com.glowin.repository.IUsuarioRepository;
-import com.glowin.security.jwt.ProveedorJwt;
+import com.glowin.security.TokenService;
 import com.glowin.service.EmailService; // <-- Asegúrate de importar tu servicio de email
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,15 +33,30 @@ public class AuthController {
     private EmailService emailService;
 
     @Autowired
-    private ProveedorJwt proveedorJwt;
+    private TokenService proveedorJwt;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @PostMapping("/ingresar")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         try {
             // Find the user by email
-            Optional<Usuario> usuario = Optional.ofNullable((Usuario) usuarioRepository.findByEmail(request.getEmail()))
-                    .filter(u -> request.getPassword().equals(u.getPassword()));
+            Optional<Usuario> usuario = Optional.ofNullable((Usuario) usuarioRepository.findByEmail(request.getEmail()));
             if (usuario.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
+            }
+
+            // Check if the user ID is in the specified range
+            Long userId = usuario.get().getId();
+            boolean isPlainTextPasswordUser = (userId >= 1 && userId <= 8);
+
+            // Compare password
+            boolean isPasswordValid = isPlainTextPasswordUser
+                    ? request.getPassword().equals(usuario.get().getPassword())
+                    : passwordEncoder.matches(request.getPassword(), usuario.get().getPassword());
+
+            if (!isPasswordValid) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
             }
 
