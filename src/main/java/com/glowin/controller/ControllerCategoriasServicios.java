@@ -2,8 +2,10 @@ package com.glowin.controller;
 
 import com.glowin.models.CategoriaServicio;
 import com.glowin.models.Input.CategoriaServicioInput;
+import com.glowin.models.Servicio;
 import com.glowin.models.output.CategoriaServicioOutput;
 import com.glowin.repository.ICategoriaServicioRepository;
+import com.glowin.repository.IServicioRepository;
 import com.google.gson.JsonObject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -18,16 +20,17 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+
 @RestController
 @RequestMapping("/categorias-servicios")
 public class ControllerCategoriasServicios {
 
     @Autowired
     private ICategoriaServicioRepository categoriaServicioRepository;
+
+    @Autowired
+    private IServicioRepository servicioRepository;
 
     @GetMapping("/all")
     public ResponseEntity<List<CategoriaServicioOutput>> getAllCategoriasServicios() {
@@ -82,26 +85,28 @@ public class ControllerCategoriasServicios {
         return ResponseEntity.status(HttpStatus.CREATED).body(new CategoriaServicioOutput(nuevaCategoria));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, String>> deleteCategoriaServicio(@PathVariable Long id) {
-        Optional<CategoriaServicio> categoriaServicio = categoriaServicioRepository.findById(id);
-        if (categoriaServicio.isPresent()) {
-            categoriaServicioRepository.delete(categoriaServicio.get());
 
-            Map<String, String> response = new HashMap<>();
-            response.put("message", "Categoría eliminada con éxito");
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Map<String, Object>> deleteCategoriaServicio(@PathVariable Long id) {
+        Optional<CategoriaServicio> categoriaServicioOpt = categoriaServicioRepository.findById(id);
+        if (categoriaServicioOpt.isPresent()) {
+            categoriaServicioRepository.deleteById(id); // Hibernate se encarga del cascade
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Categoría y todos los servicios asociados eliminados con éxito");
             response.put("status", "200");
             response.put("timestamp", LocalDate.now().toString());
-
             return ResponseEntity.ok(response);
         } else {
-            Map<String, String> response = new HashMap<>();
+            Map<String, Object> response = new HashMap<>();
             response.put("error", "Categoría no encontrada");
             response.put("status", "404");
             response.put("timestamp", LocalDate.now().toString());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
     }
+
+
 
     @ControllerAdvice
     public class GlobalExceptionHandler {

@@ -52,29 +52,25 @@ public class ControllerServicios {
         return ResponseEntity.ok(servicioOutputs);
     }
 
+
     @Transactional
     @PostMapping
     public ResponseEntity<ServicioOutput> registerServicio(@Valid @RequestBody ServicioInput servicioInput) {
         CategoriaServicio categoria;
 
-        // Si se envía categoriaId, buscamos la categoría en la BD
+        // Si se envía categoriaId, buscar la categoría por ID
         if (servicioInput.categoriaId() != null) {
             categoria = categoriaServicioRepository.findById(servicioInput.categoriaId())
                     .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
         }
-        // Si se envía una categoría completa, verificamos si ya existe o la creamos
-        else if (servicioInput.categoria() != null) {
-            String nombreCategoria = servicioInput.categoria().nombre(); // Usar el getter correcto
-
-            categoria = categoriaServicioRepository.findByNombre(nombreCategoria)
-                    .orElseGet(() -> {
-                        CategoriaServicio nuevaCategoria = new CategoriaServicio(servicioInput.categoria()); // Convierte el DTO en entidad
-                        return categoriaServicioRepository.save(nuevaCategoria);
-                    });
+        // Si se envía nombreCategoria, buscar la categoría por nombre
+        else if (servicioInput.nombreCategoria() != null && !servicioInput.nombreCategoria().isBlank()) {
+            categoria = categoriaServicioRepository.findByNombre(servicioInput.nombreCategoria())
+                    .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
         }
-        // Si no se envió ni categoriaId ni categoría completa, lanzamos error
+        // Si no se envía ni categoriaId ni nombreCategoria, lanzar error
         else {
-            throw new RuntimeException("Debe proporcionar un categoriaId o una categoría completa");
+            throw new RuntimeException("Debe proporcionar un categoriaId o el nombre de una categoría existente");
         }
 
         Servicio servicio = new Servicio(servicioInput, categoria);
@@ -86,6 +82,7 @@ public class ControllerServicios {
                 .body(new ServicioOutput(servicio));
     }
 
+
     @PutMapping("/{id}")
     public ResponseEntity<?> updateServicio(@PathVariable Long id, @Valid @RequestBody ServicioUpdate servicioUpdate) {
         Optional<Servicio> optionalServicio = servicioRepository.findById(id);
@@ -94,17 +91,34 @@ public class ControllerServicios {
             Servicio servicio = optionalServicio.get();
 
             // Actualizar solo los valores no nulos
-            if (servicioUpdate.nombre() != null) servicio.setNombre(servicioUpdate.nombre());
-            if (servicioUpdate.descripcion() != null) servicio.setDescripcion(servicioUpdate.descripcion());
-            if (servicioUpdate.duracionMinutos() != null) servicio.setDuracionMinutos(servicioUpdate.duracionMinutos());
-            if (servicioUpdate.costo() != null) servicio.setCosto(servicioUpdate.costo());
-            if (servicioUpdate.cantidadSesiones() != null) servicio.setCantidadSesiones(servicioUpdate.cantidadSesiones());
+            if (servicioUpdate.nombre() != null) {
+                servicio.setNombre(servicioUpdate.nombre());
+            }
+            if (servicioUpdate.descripcion() != null) {
+                servicio.setDescripcion(servicioUpdate.descripcion());
+            }
+            if (servicioUpdate.duracionMinutos() != null) {
+                servicio.setDuracionMinutos(servicioUpdate.duracionMinutos());
+            }
+            if (servicioUpdate.costo() != null) {
+                servicio.setCosto(servicioUpdate.costo());
+            }
+            if (servicioUpdate.cantidadSesiones() != null) {
+                servicio.setCantidadSesiones(servicioUpdate.cantidadSesiones());
+            }
 
-            // Manejo correcto de la categoría
+            // Manejo de la categoría:
+            // Se prioriza el uso de categoriaId. Si no se proporciona, se busca por nombreCategoria.
             if (servicioUpdate.categoriaId() != null) {
                 CategoriaServicio nuevaCategoria = categoriaServicioRepository.findById(servicioUpdate.categoriaId())
                         .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
                 servicio.setCategoria(nuevaCategoria);
+                servicio.setNombreCategoria(nuevaCategoria.getNombre());
+            } else if (servicioUpdate.nombreCategoria() != null && !servicioUpdate.nombreCategoria().isBlank()) {
+                CategoriaServicio nuevaCategoria = categoriaServicioRepository.findByNombre(servicioUpdate.nombreCategoria())
+                        .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+                servicio.setCategoria(nuevaCategoria);
+                servicio.setNombreCategoria(nuevaCategoria.getNombre());
             }
 
             servicioRepository.save(servicio);
@@ -114,6 +128,7 @@ public class ControllerServicios {
             return ResponseEntity.notFound().build();
         }
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deleteServicio(@PathVariable Long id) {
@@ -131,6 +146,7 @@ public class ControllerServicios {
             return ResponseEntity.notFound().build();
         }
     }
+
 
     @ControllerAdvice
     public class GlobalExceptionHandler {
