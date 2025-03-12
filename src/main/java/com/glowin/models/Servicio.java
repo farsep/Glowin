@@ -28,10 +28,20 @@ public class Servicio {
     private BigDecimal costo;
     private Integer cantidadSesiones;
 
+    // Nuevo campo para mapear la columna "nombre_categoria"
+    @Column(name = "nombre_categoria", nullable = false)
+    private String nombreCategoria;
+
+
+
     @JsonBackReference // Evita la serialización cíclica con `CategoriaServicio`
     @ManyToOne
     @JoinColumn(name = "id_categoria", nullable = false)
     private CategoriaServicio categoria;
+
+    @OneToMany(mappedBy = "servicio")
+    @JsonIgnore
+    private Set<ImagenServicio> imagenes;
 
     @JsonIgnore // Evita loops en la serialización
     @OneToMany(mappedBy = "servicio")
@@ -53,5 +63,7 @@ public class Servicio {
         this.costo = servicioInput.costo();
         this.cantidadSesiones = servicioInput.cantidadSesiones();
         this.categoria = categoria;
+        // Asignar el nombre de la categoría para cumplir con la restricción NOT NULL
+        this.nombreCategoria = categoria.getNombre();
     }
 }

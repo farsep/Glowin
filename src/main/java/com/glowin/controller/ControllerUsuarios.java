@@ -33,6 +33,10 @@ public class ControllerUsuarios {
     @Autowired
     private EmailService emailService;
 
+    // Agrega el codificador de contraseñas
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
 
     @GetMapping("/{id}")
     public ResponseEntity<UsuarioOutput> getUser(@PathVariable Long id) {
@@ -76,6 +80,8 @@ public class ControllerUsuarios {
         }
 
         Usuario user = new Usuario(usuarioInput);
+        // Encriptar la contraseña
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         usuarioRepository.save(user);
 
         // Log mail properties
