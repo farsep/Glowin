@@ -11,9 +11,14 @@ import org.hibernate.annotations.Check;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.JdbcType;
 import org.hibernate.dialect.PostgreSQLEnumJdbcType;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -22,7 +27,7 @@ import java.util.Set;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Usuario {
+public class Usuario implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -58,8 +63,38 @@ public class Usuario {
         this.password = usuarioInput.password();
         this.celular = usuarioInput.celular();
         this.rol = Rol.fromString(usuarioInput.rol());
-        this.fechaRegistro = usuarioInput.fechaRegistro() != null ? usuarioInput.fechaRegistro() : LocalDate.now();
-        this.horaRegistro = usuarioInput.horaRegistro() != null ? usuarioInput.horaRegistro() : LocalTime.now();
+        this.fechaRegistro = LocalDate.now();
+        this.horaRegistro = LocalTime.now();
 
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(rol.name()));
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return UserDetails.super.isAccountNonExpired();
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }

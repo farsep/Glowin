@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
@@ -25,13 +26,16 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/usuarios")
 public class ControllerUsuarios {
-
     @Autowired
     private IUsuarioRepository usuarioRepository;
 
     // Agrega el servicio de email
     @Autowired
     private EmailService emailService;
+
+    // Agrega el codificador de contraseñas
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
 
     @GetMapping("/{id}")
@@ -55,7 +59,6 @@ public class ControllerUsuarios {
     @Transactional
     @PostMapping
     public ResponseEntity<?> registerUser(@Valid @RequestBody UsuarioInput usuarioInput) {
-
         // (1) Verificaciones y guardado del usuario
         if (usuarioRepository.existsByEmail(usuarioInput.email())) {
             Map<String, String> response = new HashMap<>();
@@ -77,6 +80,8 @@ public class ControllerUsuarios {
         }
 
         Usuario user = new Usuario(usuarioInput);
+        // Encriptar la contraseña
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         usuarioRepository.save(user);
 
         // Log mail properties
@@ -85,22 +90,21 @@ public class ControllerUsuarios {
         // (2) Texto del correo
         String subject = "Registro exitoso en Glowin";
         String text = String.format("""
-                Estimado/a %s,
-
-                ¡Tu registro ha sido exitoso!
-
-                Detalles de tu cuenta:
-                - Nombre de usuario: %s
-                - Correo electrónico: %s
-
-                Puedes iniciar sesión en tu cuenta utilizando el siguiente enlace:
-                http://localhost:8080/ingresar
-
-                Si no has solicitado este registro, por favor ignora este correo.
-
-                Saludos,
-                Andrés
-                CEO de Glowin
+                <html>
+                <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+                <p>Estimado/a %s,</p>
+                <p>¡Tu registro ha sido exitoso!</p>
+                <p>Detalles de tu cuenta:</p>
+                <ul>
+                    <li>Nombre de usuario: %s</li>
+                    <li>Correo electrónico: %s</li>
+                </ul>
+                <p>Puedes iniciar sesión en tu cuenta utilizando el siguiente enlace:</p>
+                <a href="http://localhost/iniciar-sesion" style="color: #1a73e8;" target="_blank">Iniciar sesión</a>
+                <p>Si no has solicitado este registro, por favor ignora este correo.</p>
+                <p>Saludos,<br>Andrés<br>CEO de Glowin</p>
+                </body>
+                </html>
                 """,
                 user.getNombre(),
                 user.getNombre(),
