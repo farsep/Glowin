@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/servicios/{idServicio}/imagenes")
+@RequestMapping("/imagenes-servicios/{idServicio}/imagenes")
 public class ControllerImagenesServicios {
 
     @Autowired
