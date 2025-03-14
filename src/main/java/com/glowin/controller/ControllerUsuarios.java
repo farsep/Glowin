@@ -100,7 +100,7 @@ public class ControllerUsuarios {
                     <li>Correo electrónico: %s</li>
                 </ul>
                 <p>Puedes iniciar sesión en tu cuenta utilizando el siguiente enlace:</p>
-                <a href="http://localhost/iniciar-sesion" style="color: #1a73e8;" target="_blank">Iniciar sesión</a>
+                <a href="http://localhost/ingresar" style="color: #1a73e8;" target="_blank">Iniciar sesión</a>
                 <p>Si no has solicitado este registro, por favor ignora este correo.</p>
                 <p>Saludos,<br>Andrés<br>CEO de Glowin</p>
                 </body>
