@@ -25,6 +25,9 @@ public class SecurityConfig {
     @Autowired
     private AuthenticationConfiguration authenticationConfiguration;
 
+    @Autowired
+    private IpAddressFilter ipAddressFilter;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity.csrf(csrf -> csrf.disable())
@@ -33,6 +36,8 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui.html", "/v3/api-docs", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/usuarios/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/categorias-servicios/all").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/servicios/all").permitAll()
                         .requestMatchers("/servicios/**", "/empleados/**", "/categorias-servicios/**")
                         .hasAnyAuthority("SUPER_ADMINISTRADOR", "ADMINISTRADOR")
                         .requestMatchers(HttpMethod.GET, "/usuarios/**")

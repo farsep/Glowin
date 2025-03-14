@@ -6,6 +6,7 @@ import com.glowin.models.Input.ResendEmailRequest;
 import com.glowin.repository.IUsuarioRepository;
 import com.glowin.security.TokenService;
 import com.glowin.service.EmailService; // <-- Asegúrate de importar tu servicio de email
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +40,7 @@ public class AuthController {
     private PasswordEncoder passwordEncoder;
 
     @PostMapping("/ingresar")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest request, HttpServletRequest httpRequest) {
         try {
             // Find the user by email
             Optional<Usuario> usuario = Optional.ofNullable((Usuario) usuarioRepository.findByEmail(request.getEmail()));
@@ -63,6 +64,9 @@ public class AuthController {
             // Generate JWT token
             String jwt = proveedorJwt.generarToken(usuario.get());
             Map<String, String> response = new HashMap<>();
+            //adding the IP request.getRemoteAddr()
+            String clientIp = httpRequest.getRemoteAddr();
+            response.put("IP", clientIp);
             response.put("message", "Login exitoso");
             response.put("rol", usuario.get().getRol().toString());
             response.put("token", jwt);
