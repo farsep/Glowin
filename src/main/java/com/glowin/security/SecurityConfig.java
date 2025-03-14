@@ -20,7 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     @Autowired
-    private PreFilter preFilter;
+    private TokenFilter tokenFilter;
 
     @Autowired
     private AuthenticationConfiguration authenticationConfiguration;
@@ -35,6 +35,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/swagger-ui.html", "/v3/api-docs", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/imagenes-servicios/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/usuarios/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/categorias-servicios/all").permitAll()
                         .requestMatchers(HttpMethod.GET, "/servicios/all").permitAll()
@@ -48,7 +49,7 @@ public class SecurityConfig {
                         .hasAnyAuthority("SUPER_ADMINISTRADOR", "ADMINISTRADOR", "CLIENTE")
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(preFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
