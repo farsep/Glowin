@@ -14,6 +14,7 @@ import com.google.gson.JsonObject;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.transaction.Transactional;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -49,10 +51,11 @@ public class ControllerReservas {
     @Autowired
     private IServicioRepository servicioRepo;
 
-    @Operation(summary = "Get all reservations", description = "Retrieve all reservations with pagination")
+    // Operación para obtener todas las reservas con paginación
+    @Operation(summary = "Obtener todas las reservas", description = "Recupera todas las reservas con paginación")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Found the reservations", content = @Content(mediaType = "application/json")),
-            @ApiResponse(responseCode = "204", description = "No reservations found", content = @Content)
+            @ApiResponse(responseCode = "200", description = "Reservas encontradas", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "[{\"id\":1,\"fecha\":\"2023-10-01\",\"hora\":\"10:00\",\"empleado\":{\"id\":1,\"nombre\":\"Juan\"},\"cliente\":{\"id\":1,\"nombre\":\"Pedro\"},\"servicio\":{\"id\":1,\"nombre\":\"Corte de pelo\"}}]"))),
+            @ApiResponse(responseCode = "204", description = "No se encontraron reservas", content = @Content)
     })
     @GetMapping("/all")
     public ResponseEntity<Page<ReservaOutput>> getAllReservas(Pageable pageable) {
@@ -60,31 +63,33 @@ public class ControllerReservas {
         return ResponseEntity.ok(reservas);
     }
 
-    @Operation(summary = "Get reservation by ID", description = "Retrieve a reservation by its ID")
+    // Operación para obtener una reserva por su ID
+    @Operation(summary = "Obtener reserva por ID", description = "Recupera una reserva por su ID")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Found the reservation", content = @Content(mediaType = "application/json")),
-            @ApiResponse(responseCode = "204", description = "No reservation found", content = @Content)
+            @ApiResponse(responseCode = "200", description = "Reserva encontrada", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"id\":1,\"fecha\":\"2023-10-01\",\"hora\":\"10:00\",\"empleado\":{\"id\":1,\"nombre\":\"Juan\"},\"cliente\":{\"id\":1,\"nombre\":\"Pedro\"},\"servicio\":{\"id\":1,\"nombre\":\"Corte de pelo\"}}"))),
+            @ApiResponse(responseCode = "204", description = "No se encontró la reserva", content = @Content)
     })
     @GetMapping("/{id}")
     public ResponseEntity<ReservaOutput> getReserva(
-            @Parameter(description = "ID of the reservation to be retrieved", required = true) @PathVariable Long id) {
+            @Parameter(description = "ID de la reserva a recuperar", required = true) @PathVariable Long id) {
         Optional<Reserva> reserva = reservaRepo.findById(id);
         return reserva.map(value -> ResponseEntity.ok(ConvertToOutput(value)))
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NO_CONTENT).build());
     }
 
-    @Operation(summary = "Get reservations by employee ID", description = "Retrieve reservations for a specific employee")
+    // Operación para obtener reservas por ID de empleado
+    @Operation(summary = "Obtener reservas por ID de empleado", description = "Recupera reservas para un empleado específico")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Found the reservations", content = @Content(mediaType = "application/json")),
-            @ApiResponse(responseCode = "204", description = "No reservations found", content = @Content)
+            @ApiResponse(responseCode = "200", description = "Reservas encontradas", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "[{\"id\":1,\"fecha\":\"2023-10-01\",\"hora\":\"10:00\",\"empleado\":{\"id\":1,\"nombre\":\"Juan\"},\"cliente\":{\"id\":1,\"nombre\":\"Pedro\"},\"servicio\":{\"id\":1,\"nombre\":\"Corte de pelo\"}}]"))),
+            @ApiResponse(responseCode = "204", description = "No se encontraron reservas", content = @Content)
     })
     @GetMapping("/employee/{id}")
     public ResponseEntity<?> getReservasByEmployee(
-            @Parameter(description = "ID of the employee", required = true) @PathVariable Long id, Pageable pageable) {
+            @Parameter(description = "ID del empleado", required = true) @PathVariable Long id, Pageable pageable) {
         Page<ReservaOutput> reservas = reservaRepo.findByEmpleadoId(id, pageable).map(this::ConvertToOutput);
         if (reservas.isEmpty()) {
             JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty("message", "No reservations found for the specified employee");
+            jsonObject.addProperty("message", "No se encontraron reservas para el empleado especificado");
             HttpHeaders header = new HttpHeaders();
             header.add("Content-Type", "application/json");
             return ResponseEntity.status(HttpStatus.NO_CONTENT).headers(header).body(jsonObject.toString());
@@ -92,18 +97,19 @@ public class ControllerReservas {
         return ResponseEntity.ok(reservas);
     }
 
-    @Operation(summary = "Get reservations by service ID", description = "Retrieve reservations for a specific service")
+    // Operación para obtener reservas por ID de servicio
+    @Operation(summary = "Obtener reservas por ID de servicio", description = "Recupera reservas para un servicio específico")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Found the reservations", content = @Content(mediaType = "application/json")),
-            @ApiResponse(responseCode = "204", description = "No reservations found", content = @Content)
+            @ApiResponse(responseCode = "200", description = "Reservas encontradas", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "[{\"id\":1,\"fecha\":\"2023-10-01\",\"hora\":\"10:00\",\"empleado\":{\"id\":1,\"nombre\":\"Juan\"},\"cliente\":{\"id\":1,\"nombre\":\"Pedro\"},\"servicio\":{\"id\":1,\"nombre\":\"Corte de pelo\"}}]"))),
+            @ApiResponse(responseCode = "204", description = "No se encontraron reservas", content = @Content)
     })
     @GetMapping("/service/{id}")
     public ResponseEntity<?> getReservasByService(
-            @Parameter(description = "ID of the service", required = true) @PathVariable Long id, Pageable pageable) {
+            @Parameter(description = "ID del servicio", required = true) @PathVariable Long id, Pageable pageable) {
         Page<ReservaOutput> reservas = reservaRepo.findByServicioId(id, pageable).map(this::ConvertToOutput);
         if (reservas.isEmpty()) {
             JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty("message", "No reservations found for the specified service");
+            jsonObject.addProperty("message", "No se encontraron reservas para el servicio especificado");
             HttpHeaders header = new HttpHeaders();
             header.add("Content-Type", "application/json");
             return ResponseEntity.status(HttpStatus.NO_CONTENT).headers(header).body(jsonObject.toString());
@@ -111,20 +117,21 @@ public class ControllerReservas {
         return ResponseEntity.ok(reservas);
     }
 
-    @Operation(summary = "Get reservations by date range", description = "Retrieve reservations within a specific date range")
+    // Operación para obtener reservas por rango de fechas
+    @Operation(summary = "Obtener reservas por rango de fechas", description = "Recupera reservas dentro de un rango de fechas específico")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Found the reservations", content = @Content(mediaType = "application/json")),
-            @ApiResponse(responseCode = "204", description = "No reservations found", content = @Content)
+            @ApiResponse(responseCode = "200", description = "Reservas encontradas", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "[{\"id\":1,\"fecha\":\"2023-10-01\",\"hora\":\"10:00\",\"empleado\":{\"id\":1,\"nombre\":\"Juan\"},\"cliente\":{\"id\":1,\"nombre\":\"Pedro\"},\"servicio\":{\"id\":1,\"nombre\":\"Corte de pelo\"}}]"))),
+            @ApiResponse(responseCode = "204", description = "No se encontraron reservas", content = @Content)
     })
     @GetMapping("/date")
     public ResponseEntity<?> getReservasByDate(
-            @Parameter(description = "Start date in the format yyyy-MM-dd", required = true) @RequestParam String fechaInicio,
-            @Parameter(description = "End date in the format yyyy-MM-dd", required = true) @RequestParam String fechaFin,
+            @Parameter(description = "Fecha de inicio en el formato yyyy-MM-dd", required = true) @RequestParam String fechaInicio,
+            @Parameter(description = "Fecha de fin en el formato yyyy-MM-dd", required = true) @RequestParam String fechaFin,
             Pageable pageable) {
         Page<ReservaOutput> reservas = reservaRepo.findByFechaBetween(fechaInicio, fechaFin, pageable).map(this::ConvertToOutput);
         if (reservas.isEmpty()) {
             JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty("message", "No reservations found for the specified date range");
+            jsonObject.addProperty("message", "No se encontraron reservas para el rango de fechas especificado");
             HttpHeaders header = new HttpHeaders();
             header.add("Content-Type", "application/json");
             return ResponseEntity.status(HttpStatus.NO_CONTENT).headers(header).body(jsonObject.toString());
@@ -132,18 +139,19 @@ public class ControllerReservas {
         return ResponseEntity.ok(reservas);
     }
 
-    @Operation(summary = "Get reservations by user ID", description = "Retrieve reservations for a specific user")
+    // Operación para obtener reservas por ID de usuario
+    @Operation(summary = "Obtener reservas por ID de usuario", description = "Recupera reservas para un usuario específico")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Found the reservations", content = @Content(mediaType = "application/json")),
-            @ApiResponse(responseCode = "204", description = "No reservations found", content = @Content)
+            @ApiResponse(responseCode = "200", description = "Reservas encontradas", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "[{\"id\":1,\"fecha\":\"2023-10-01\",\"hora\":\"10:00\",\"empleado\":{\"id\":1,\"nombre\":\"Juan\"},\"cliente\":{\"id\":1,\"nombre\":\"Pedro\"},\"servicio\":{\"id\":1,\"nombre\":\"Corte de pelo\"}}]"))),
+            @ApiResponse(responseCode = "204", description = "No se encontraron reservas", content = @Content)
     })
     @GetMapping("/user/{id}")
     public ResponseEntity<?> getReservasByUser(
-            @Parameter(description = "ID of the user", required = true) @PathVariable Long id, Pageable pageable) {
+            @Parameter(description = "ID del usuario", required = true) @PathVariable Long id, Pageable pageable) {
         Page<ReservaOutput> reservas = reservaRepo.findByClienteId(id, pageable).map(this::ConvertToOutput);
         if (reservas.isEmpty()) {
             JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty("message", "No reservations found for the specified user");
+            jsonObject.addProperty("message", "No se encontraron reservas para el usuario especificado");
             HttpHeaders header = new HttpHeaders();
             header.add("Content-Type", "application/json");
             return ResponseEntity.status(HttpStatus.NO_CONTENT).headers(header).body(jsonObject.toString());
@@ -151,15 +159,16 @@ public class ControllerReservas {
         return ResponseEntity.ok(reservas);
     }
 
-    @Operation(summary = "Register a new reservation", description = "Create a new reservation")
+    // Operación para registrar una nueva reserva
+    @Operation(summary = "Registrar una nueva reserva", description = "Crea una nueva reserva")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Reservation created", content = @Content(mediaType = "application/json")),
-            @ApiResponse(responseCode = "404", description = "User, service, or employee not found", content = @Content)
+            @ApiResponse(responseCode = "201", description = "Reserva creada", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"id\":1,\"fecha\":\"2023-10-01\",\"hora\":\"10:00\",\"empleado\":{\"id\":1,\"nombre\":\"Juan\"},\"cliente\":{\"id\":1,\"nombre\":\"Pedro\"},\"servicio\":{\"id\":1,\"nombre\":\"Corte de pelo\"}}"))),
+            @ApiResponse(responseCode = "404", description = "Usuario, servicio o empleado no encontrado", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"error\":\"Usuario, servicio o empleado no encontrado\",\"status\":\"404\",\"timestamp\":\"2023-10-01\"}")))
     })
     @Transactional
     @PostMapping
-    public ResponseEntity<ReservaOutput> registerReserva(
-            @Parameter(description = "Reservation input data", required = true) @Valid @RequestBody ReservaInput reserva) {
+    public ResponseEntity<?> registerReserva(
+            @Parameter(description = "Datos de entrada de la reserva", required = true) @Valid @RequestBody ReservaInput reserva) {
         Optional<Usuario> usuario = usuarioRepo.findById(reserva.idCliente());
         Optional<Servicio> servicio = servicioRepo.findById(reserva.idServicio());
         Optional<Empleado> empleado = empleadoRepo.findById(reserva.idEmpleado());
@@ -170,34 +179,47 @@ public class ControllerReservas {
                     ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                             .buildAndExpand(reserva1.getId()).toUri()).body(ConvertToOutput(reserva1));
         }
-        return ResponseEntity.notFound().build();
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("error", "Usuario, servicio o empleado no encontrado");
+        jsonObject.addProperty("status", "404");
+        jsonObject.addProperty("timestamp", LocalDate.now().toString());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(jsonObject.toString());
     }
 
-    @Operation(summary = "Delete a reservation", description = "Delete a reservation by its ID")
+    // Operación para eliminar una reserva por su ID
+    @Operation(summary = "Eliminar una reserva", description = "Elimina una reserva por su ID")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Reservation deleted", content = @Content(mediaType = "application/json")),
-            @ApiResponse(responseCode = "404", description = "Reservation not found", content = @Content)
+            @ApiResponse(responseCode = "200", description = "Reserva eliminada", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"message\":\"Reserva eliminada con éxito\",\"status\":\"200\",\"timestamp\":\"2023-10-01\"}"))),
+            @ApiResponse(responseCode = "404", description = "Reserva no encontrada", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"error\":\"Reserva no encontrada\",\"status\":\"404\",\"timestamp\":\"2023-10-01\"}")))
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteReserva(
-            @Parameter(description = "ID of the reservation to be deleted", required = true) @PathVariable Long id) {
+            @Parameter(description = "ID de la reserva a eliminar", required = true) @PathVariable Long id) {
         Optional<Reserva> reserva = reservaRepo.findById(id);
         if (reserva.isPresent()) {
             reservaRepo.delete(reserva.get());
             JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty("message", "Reservation deleted successfully");
+            jsonObject.addProperty("message", "Reserva eliminada con éxito");
+            jsonObject.addProperty("status", "200");
+            jsonObject.addProperty("timestamp", LocalDate.now().toString());
             HttpHeaders header = new HttpHeaders();
             header.add("Content-Type", "application/json");
             return ResponseEntity.ok().headers(header).body(jsonObject.toString());
         } else {
-            return ResponseEntity.notFound().build();
+            JsonObject jsonObject = new JsonObject();
+            jsonObject.addProperty("error", "Reserva no encontrada");
+            jsonObject.addProperty("status", "404");
+            jsonObject.addProperty("timestamp", LocalDate.now().toString());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(jsonObject.toString());
         }
     }
 
+    // Metodo para convertir una entidad Reserva a su representación de salida
     public ReservaOutput ConvertToOutput(Reserva reserva) {
         return new ReservaOutput(reserva, reserva.getEmpleado(), reserva.getCliente(), reserva.getServicio());
     }
 
+    // Manejador global de excepciones para validaciones
     @ControllerAdvice
     public class GlobalExceptionHandler {
         @ExceptionHandler(MethodArgumentNotValidException.class)
