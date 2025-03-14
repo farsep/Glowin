@@ -8,6 +8,10 @@ import com.glowin.models.output.ServicioOutput;
 import com.glowin.repository.ICategoriaServicioRepository;
 import com.glowin.repository.IServicioRepository;
 import com.google.gson.JsonObject;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,8 +39,14 @@ public class ControllerServicios {
     @Autowired
     private ICategoriaServicioRepository categoriaServicioRepository;
 
+    @Operation(summary = "Obtener servicio por ID", description = "Recupera un servicio por su ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Servicio encontrado"),
+            @ApiResponse(responseCode = "404", description = "Servicio no encontrado")
+    })
     @GetMapping("/{id}")
-    public ResponseEntity<ServicioOutput> getServicio(@PathVariable Long id) {
+    public ResponseEntity<ServicioOutput> getServicio(
+            @Parameter(description = "ID del servicio a recuperar", required = true) @PathVariable Long id) {
         Optional<Servicio> servicio = servicioRepository.findById(id);
         if (servicio.isPresent()) {
             return ResponseEntity.ok(new ServicioOutput(servicio.get()));
@@ -45,6 +55,11 @@ public class ControllerServicios {
         }
     }
 
+    @Operation(summary = "Obtener todos los servicios", description = "Recupera todos los servicios")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Servicios encontrados"),
+            @ApiResponse(responseCode = "204", description = "No se encontraron servicios")
+    })
     @GetMapping("/all")
     public ResponseEntity<List<ServicioOutput>> getAllServicios() {
         List<Servicio> servicios = servicioRepository.findAll();
@@ -52,24 +67,24 @@ public class ControllerServicios {
         return ResponseEntity.ok(servicioOutputs);
     }
 
-
+    @Operation(summary = "Registrar un nuevo servicio", description = "Crea un nuevo servicio")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Servicio creado"),
+            @ApiResponse(responseCode = "404", description = "Categoría no encontrada")
+    })
     @Transactional
     @PostMapping
-    public ResponseEntity<ServicioOutput> registerServicio(@Valid @RequestBody ServicioInput servicioInput) {
+    public ResponseEntity<ServicioOutput> registerServicio(
+            @Parameter(description = "Datos de entrada del servicio", required = true) @Valid @RequestBody ServicioInput servicioInput) {
         CategoriaServicio categoria;
 
-        // Si se envía categoriaId, buscar la categoría por ID
         if (servicioInput.categoriaId() != null) {
             categoria = categoriaServicioRepository.findById(servicioInput.categoriaId())
                     .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
-        }
-        // Si se envía nombreCategoria, buscar la categoría por nombre
-        else if (servicioInput.nombreCategoria() != null && !servicioInput.nombreCategoria().isBlank()) {
+        } else if (servicioInput.nombreCategoria() != null && !servicioInput.nombreCategoria().isBlank()) {
             categoria = categoriaServicioRepository.findByNombre(servicioInput.nombreCategoria())
                     .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
-        }
-        // Si no se envía ni categoriaId ni nombreCategoria, lanzar error
-        else {
+        } else {
             throw new RuntimeException("Debe proporcionar un categoriaId o el nombre de una categoría existente");
         }
 
@@ -82,15 +97,21 @@ public class ControllerServicios {
                 .body(new ServicioOutput(servicio));
     }
 
-
+    @Operation(summary = "Actualizar un servicio", description = "Actualiza los datos de un servicio existente")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Servicio actualizado"),
+            @ApiResponse(responseCode = "404", description = "Servicio no encontrado"),
+            @ApiResponse(responseCode = "404", description = "Categoría no encontrada")
+    })
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateServicio(@PathVariable Long id, @Valid @RequestBody ServicioUpdate servicioUpdate) {
+    public ResponseEntity<?> updateServicio(
+            @Parameter(description = "ID del servicio a actualizar", required = true) @PathVariable Long id,
+            @Parameter(description = "Datos de actualización del servicio", required = true) @Valid @RequestBody ServicioUpdate servicioUpdate) {
         Optional<Servicio> optionalServicio = servicioRepository.findById(id);
 
         if (optionalServicio.isPresent()) {
             Servicio servicio = optionalServicio.get();
 
-            // Actualizar solo los valores no nulos
             if (servicioUpdate.nombre() != null) {
                 servicio.setNombre(servicioUpdate.nombre());
             }
@@ -107,8 +128,6 @@ public class ControllerServicios {
                 servicio.setCantidadSesiones(servicioUpdate.cantidadSesiones());
             }
 
-            // Manejo de la categoría:
-            // Se prioriza el uso de categoriaId. Si no se proporciona, se busca por nombreCategoria.
             if (servicioUpdate.categoriaId() != null) {
                 CategoriaServicio nuevaCategoria = categoriaServicioRepository.findById(servicioUpdate.categoriaId())
                         .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
@@ -129,9 +148,14 @@ public class ControllerServicios {
         }
     }
 
-
+    @Operation(summary = "Eliminar un servicio", description = "Elimina un servicio por su ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Servicio eliminado"),
+            @ApiResponse(responseCode = "404", description = "Servicio no encontrado")
+    })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, String>> deleteServicio(@PathVariable Long id) {
+    public ResponseEntity<Map<String, String>> deleteServicio(
+            @Parameter(description = "ID del servicio a eliminar", required = true) @PathVariable Long id) {
         Optional<Servicio> servicio = servicioRepository.findById(id);
         if (servicio.isPresent()) {
             servicioRepository.delete(servicio.get());
@@ -146,7 +170,6 @@ public class ControllerServicios {
             return ResponseEntity.notFound().build();
         }
     }
-
 
     @ControllerAdvice
     public class GlobalExceptionHandler {

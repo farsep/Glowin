@@ -7,6 +7,10 @@ import com.glowin.models.enums.Rol;
 import com.glowin.models.output.UsuarioOutput;
 import com.glowin.repository.IUsuarioRepository;
 import com.glowin.service.EmailService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,17 +33,20 @@ public class ControllerUsuarios {
     @Autowired
     private IUsuarioRepository usuarioRepository;
 
-    // Agrega el servicio de email
     @Autowired
     private EmailService emailService;
 
-    // Agrega el codificador de contraseñas
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-
+    @Operation(summary = "Obtener usuario por ID", description = "Recupera un usuario por su ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuario encontrado"),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+    })
     @GetMapping("/{id}")
-    public ResponseEntity<UsuarioOutput> getUser(@PathVariable Long id) {
+    public ResponseEntity<UsuarioOutput> getUser(
+            @Parameter(description = "ID del usuario a recuperar", required = true) @PathVariable Long id) {
         Optional<Usuario> user = usuarioRepository.findById(id);
         if (user.isPresent()) {
             return ResponseEntity.ok(new UsuarioOutput(user.get()));
@@ -48,6 +55,11 @@ public class ControllerUsuarios {
         }
     }
 
+    @Operation(summary = "Obtener todos los usuarios", description = "Recupera todos los usuarios")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuarios encontrados"),
+            @ApiResponse(responseCode = "204", description = "No se encontraron usuarios")
+    })
     @GetMapping("/all")
     public ResponseEntity<List<UsuarioOutput>> getAllUsers() {
         List<Usuario> users = usuarioRepository.findAll();
@@ -55,11 +67,15 @@ public class ControllerUsuarios {
         return ResponseEntity.ok(userOutputs);
     }
 
-
+    @Operation(summary = "Registrar un nuevo usuario", description = "Crea un nuevo usuario")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Usuario creado"),
+            @ApiResponse(responseCode = "409", description = "El email ya está en uso o ya existe un SUPER_ADMINISTRADOR")
+    })
     @Transactional
     @PostMapping
-    public ResponseEntity<?> registerUser(@Valid @RequestBody UsuarioInput usuarioInput) {
-        // (1) Verificaciones y guardado del usuario
+    public ResponseEntity<?> registerUser(
+            @Parameter(description = "Datos de entrada del usuario", required = true) @Valid @RequestBody UsuarioInput usuarioInput) {
         if (usuarioRepository.existsByEmail(usuarioInput.email())) {
             Map<String, String> response = new HashMap<>();
             response.put("error", "El email ya está en uso");
@@ -68,8 +84,6 @@ public class ControllerUsuarios {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
         }
 
-        // valida si el rol es SUPER_ADMINISTRADOR y si ya existe un usuario con ese rol
-        // si el rol es SUPER_ADMINISTRADOR y ya existe un usuario con ese rol, retorna un error 409
         Rol nuevoRol = Rol.fromString(usuarioInput.rol());
         if (nuevoRol == Rol.SUPER_ADMINISTRADOR && usuarioRepository.existsByRol(Rol.SUPER_ADMINISTRADOR)) {
             Map<String, String> response = new HashMap<>();
@@ -80,14 +94,11 @@ public class ControllerUsuarios {
         }
 
         Usuario user = new Usuario(usuarioInput);
-        // Encriptar la contraseña
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         usuarioRepository.save(user);
 
-        // Log mail properties
         emailService.logMailProperties();
 
-        // (2) Texto del correo
         String subject = "Registro exitoso en Glowin";
         String text = String.format("""
                 <html>
@@ -111,29 +122,33 @@ public class ControllerUsuarios {
                 user.getEmail()
         );
 
-        // (3) Envía el correo de confirmación
         emailService.sendConfirmationEmail(
-                user.getEmail(),  // Destinatario
-                subject,          // Asunto
-                text              // Cuerpo del mensaje
+                user.getEmail(),
+                subject,
+                text
         );
 
-        // (4) Retornar la respuesta al frontend
         return ResponseEntity.created(
                 ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                         .buildAndExpand(user.getId()).toUri()
         ).body(new UsuarioOutput(user));
     }
 
-
+    @Operation(summary = "Actualizar un usuario", description = "Actualiza los datos de un usuario existente")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuario actualizado"),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
+            @ApiResponse(responseCode = "409", description = "El email ya está en uso por otro usuario o ya existe un SUPER_ADMINISTRADOR")
+    })
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable Long id, @Valid @RequestBody UsuarioUpdate usuarioUpdate) {
+    public ResponseEntity<?> updateUser(
+            @Parameter(description = "ID del usuario a actualizar", required = true) @PathVariable Long id,
+            @Parameter(description = "Datos de actualización del usuario", required = true) @Valid @RequestBody UsuarioUpdate usuarioUpdate) {
         Optional<Usuario> optionalUser = usuarioRepository.findById(id);
 
         if (optionalUser.isPresent()) {
             Usuario user = optionalUser.get();
 
-            // Validar que el nuevo email no esté en uso por otro usuario
             if (usuarioUpdate.email() != null && !usuarioUpdate.email().equals(user.getEmail())) {
                 if (usuarioRepository.existsByEmail(usuarioUpdate.email())) {
                     Map<String, String> response = new HashMap<>();
@@ -145,7 +160,6 @@ public class ControllerUsuarios {
                 user.setEmail(usuarioUpdate.email());
             }
 
-            // Validar si el nuevo rol es SUPER_ADMINISTRADOR y ya existe uno en la BD
             if (usuarioUpdate.rol() != null && usuarioUpdate.rol() == Rol.SUPER_ADMINISTRADOR &&
                     usuarioRepository.existsByRol(Rol.SUPER_ADMINISTRADOR)) {
                 Map<String, String> response = new HashMap<>();
@@ -155,7 +169,6 @@ public class ControllerUsuarios {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
             }
 
-            // Actualizar solo los valores no nulos
             if (usuarioUpdate.nombre() != null) user.setNombre(usuarioUpdate.nombre());
             if (usuarioUpdate.apellido() != null) user.setApellido(usuarioUpdate.apellido());
             if (usuarioUpdate.password() != null) user.setPassword(usuarioUpdate.password());
@@ -172,8 +185,16 @@ public class ControllerUsuarios {
         }
     }
 
+    @Operation(summary = "Eliminar un usuario", description = "Elimina un usuario por su ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuario eliminado"),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
+            @ApiResponse(responseCode = "409", description = "Debe asignar un nuevo SUPER_ADMINISTRADOR antes de eliminar este usuario")
+    })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, String>> deleteUser(@PathVariable Long id, @RequestParam(required = false) Long nuevoSuperAdminId) {
+    public ResponseEntity<Map<String, String>> deleteUser(
+            @Parameter(description = "ID del usuario a eliminar", required = true) @PathVariable Long id,
+            @Parameter(description = "ID del nuevo SUPER_ADMINISTRADOR", required = false) @RequestParam(required = false) Long nuevoSuperAdminId) {
         Optional<Usuario> user = usuarioRepository.findById(id);
 
         if (user.isEmpty()) {
@@ -182,7 +203,6 @@ public class ControllerUsuarios {
 
         Usuario usuario = user.get();
 
-        // Si el usuario es SUPER_ADMINISTRADOR, debe transferir el rol antes de eliminarse
         if (usuario.getRol() == Rol.SUPER_ADMINISTRADOR) {
             if (nuevoSuperAdminId == null) {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(
@@ -204,14 +224,11 @@ public class ControllerUsuarios {
 
             Usuario nuevoSuperAdmin = nuevoAdmin.get();
 
-            // Eliminar al usuario original primero
             usuarioRepository.delete(usuario);
 
-            // Actualizar roles
             nuevoSuperAdmin.setRol(Rol.SUPER_ADMINISTRADOR);
             usuarioRepository.save(nuevoSuperAdmin);
         } else {
-            // Eliminar al usuario original si no es SUPER_ADMINISTRADOR
             usuarioRepository.delete(usuario);
         }
 
@@ -235,5 +252,4 @@ public class ControllerUsuarios {
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         }
     }
-
 }

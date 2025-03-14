@@ -24,7 +24,7 @@ services:
     restart: always
 
   frontend:
-    image: gravel3497/glowinfront:latest
+    image: gravel3497/glowinfront
     ports:
       - "80:80"
     environment:
