@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.stream.Collectors;
 
 @Configuration
-public class PreFilter extends OncePerRequestFilter {
+public class TokenFilter extends OncePerRequestFilter {
 
     @Autowired
     private TokenService tokenService;
