@@ -13,7 +13,7 @@ import java.io.IOException;
 @Configuration
 public class IpAddressFilter extends OncePerRequestFilter {
 
-    @Value("${allowed_ip:0.0.0.1}")
+    @Value("${allowed_ip:0:0:0:0:0:0:0:1}")
     private String ALLOWED_IP;
 
     @Override

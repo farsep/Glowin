@@ -39,6 +39,7 @@ public class ControllerServicios {
     @Autowired
     private ICategoriaServicioRepository categoriaServicioRepository;
 
+    // Operación para obtener un servicio por su ID
     @Operation(summary = "Obtener servicio por ID", description = "Recupera un servicio por su ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Servicio encontrado"),
@@ -55,6 +56,7 @@ public class ControllerServicios {
         }
     }
 
+    // Operación para obtener todos los servicios
     @Operation(summary = "Obtener todos los servicios", description = "Recupera todos los servicios")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Servicios encontrados"),
@@ -67,6 +69,7 @@ public class ControllerServicios {
         return ResponseEntity.ok(servicioOutputs);
     }
 
+    // Operación para registrar un nuevo servicio
     @Operation(summary = "Registrar un nuevo servicio", description = "Crea un nuevo servicio")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Servicio creado"),
@@ -97,6 +100,7 @@ public class ControllerServicios {
                 .body(new ServicioOutput(servicio));
     }
 
+    // Operación para actualizar un servicio
     @Operation(summary = "Actualizar un servicio", description = "Actualiza los datos de un servicio existente")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Servicio actualizado"),
@@ -148,6 +152,7 @@ public class ControllerServicios {
         }
     }
 
+    // Operación para eliminar un servicio
     @Operation(summary = "Eliminar un servicio", description = "Elimina un servicio por su ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Servicio eliminado"),
@@ -171,6 +176,7 @@ public class ControllerServicios {
         }
     }
 
+    // Manejador global de excepciones para validaciones
     @ControllerAdvice
     public class GlobalExceptionHandler {
         @ExceptionHandler(MethodArgumentNotValidException.class)

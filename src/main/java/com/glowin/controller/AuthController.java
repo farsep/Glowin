@@ -105,21 +105,50 @@ public class AuthController {
 
         String subject = "Reenvío de confirmación de registro";
         String text = String.format("""
-                Hola %s,
+ 
+                <html>
+ 
+                <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+ 
+                <p>Estimado/a %s,</p>
+ 
+                <p>¡Tu registro ha sido exitoso!</p>
+ 
+                <p>Detalles de tu cuenta:</p>
+ 
+                <ul>
+ 
+                    <li>Nombre de usuario: %s</li>
+ 
+                    <li>Correo electrónico: %s</li>
+ 
+                </ul>
+ 
+                <p>Puedes iniciar sesión en tu cuenta utilizando el siguiente enlace:</p>
+ 
 
-                Te reenviamos el correo de confirmación para tu cuenta registrada en Glowin.
-                Tus datos:
-                - Usuario: %s
-                - Correo: %s
+                <a href="http://localhost/iniciar-sesion" style="color: #1a73e8;" target="_blank">Iniciar sesión</a>
+ 
 
-                Puedes iniciar sesión aquí: http://localhost:8080/login
-
-                Si no has solicitado este registro, por favor ignora este correo.
-
-                Saludos,
-                Andrés CEO de Glowin
+                <a href="http://localhost/ingresar" style="color: #1a73e8;" target="_blank">Iniciar sesión</a>
+ 
+                <p>Si no has solicitado este registro, por favor ignora este correo.</p>
+ 
+                <p>Saludos,<br>Andrés<br>CEO de Glowin</p>
+ 
+                </body>
+ 
+                </html>
+ 
                 """,
-                user.getNombre(), user.getNombre(), user.getEmail());
+
+                user.getNombre(),
+
+                user.getNombre(),
+
+                user.getEmail()
+
+        );
 
         emailService.sendConfirmationEmail(user.getEmail(), subject, text);
 

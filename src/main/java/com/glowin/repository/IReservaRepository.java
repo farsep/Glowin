@@ -11,11 +11,11 @@ import java.util.List;
 public interface IReservaRepository extends JpaRepository<Reserva, Long> {
     Page<Reserva> findAll(Pageable pageable);
 
-    Page<Reserva> findByFechaBetween(String fechaInicio, String fechaFin, Pageable pageable);
-
-    Page<Reserva> findByClienteId(Long id, Pageable pageable);
+    Page<Reserva> findByEmpleadoId(Long id, Pageable pageable);
 
     Page<Reserva> findByServicioId(Long id, Pageable pageable);
 
-    Page<Reserva> findByEmpleadoId(Long id, Pageable pageable);
+    Page<Reserva> findByFechaBetween(String fechaInicio, String fechaFin, Pageable pageable);
+
+    Page<Reserva> findByClienteId(Long id, Pageable pageable);
 }

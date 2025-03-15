@@ -176,4 +176,3 @@ INSERT INTO imagenes_servicios (titulo, descripcion, url_imagen, id_servicio) VA
 INSERT INTO imagenes_servicios (titulo, descripcion, url_imagen, id_servicio) VALUES ('Cuidado facial y limpieza profunda', 'Cuidado de uñas y cutículas para hombres', 'https://images.pexels.com/photos/6724401/pexels-photo-6724401.jpeg?auto=compress&cs=tinysrgb&h=350', 33);
 INSERT INTO imagenes_servicios (titulo, descripcion, url_imagen, id_servicio) VALUES ('Cuidado facial y limpieza profunda', 'Cuidado de uñas y cutículas para hombres', 'https://images.pexels.com/photos/6724404/pexels-photo-6724404.jpeg?auto=compress&cs=tinysrgb&h=350', 33);
 INSERT INTO imagenes_servicios (titulo, descripcion, url_imagen, id_servicio) VALUES ('Cuidado facial y limpieza profunda', 'Cuidado de uñas y cutículas para hombres', 'https://images.pexels.com/photos/6724588/pexels-photo-6724588.jpeg?auto=compress&cs=tinysrgb&h=350', 33);
-
