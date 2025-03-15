@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/imagenes-servicios/{idServicio}/imagenes")
+@RequestMapping("/servicios/{idServicio}/imagenes")
 public class ControllerImagenesServicios {
 
     @Autowired
@@ -35,14 +35,14 @@ public class ControllerImagenesServicios {
     @Autowired
     private IServicioRepository servicioRepository;
 
+    // 1. Listar todas las imágenes de un servicio
     @Operation(summary = "Listar todas las imágenes de un servicio", description = "Recupera todas las imágenes de un servicio")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Imágenes encontradas"),
             @ApiResponse(responseCode = "204", description = "No se encontraron imágenes")
     })
     @GetMapping
-    public ResponseEntity<List<ImagenServicioOutput>> getImagenes(
-            @Parameter(description = "ID del servicio", required = true) @PathVariable Long idServicio) {
+    public ResponseEntity<List<ImagenServicioOutput>> getImagenes(@Parameter(description = "ID del servicio", required = true) @PathVariable Long idServicio) {
         List<ImagenServicio> imagenes = imagenServicioRepository.findByServicioId(idServicio);
         List<ImagenServicioOutput> dtoList = imagenes.stream()
                 .map(ImagenServicioOutput::new)
@@ -50,6 +50,7 @@ public class ControllerImagenesServicios {
         return ResponseEntity.ok(dtoList);
     }
 
+    // 2. Obtener imagen por ID
     @Operation(summary = "Obtener imagen por ID", description = "Recupera una imagen por su ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Imagen encontrada"),
@@ -67,6 +68,7 @@ public class ControllerImagenesServicios {
         }
 
         ImagenServicio img = optionalImg.get();
+        // Verificamos que la imagen pertenezca al servicio correcto
         if (!img.getServicio().getId().equals(idServicio)) {
             return ResponseEntity.badRequest().body(Map.of(
                     "error", "La imagen no corresponde al servicio indicado",
@@ -78,6 +80,7 @@ public class ControllerImagenesServicios {
         return ResponseEntity.ok(new ImagenServicioOutput(img));
     }
 
+    // 3. Crear una nueva imagen para un servicio
     @Operation(summary = "Crear una nueva imagen para un servicio", description = "Crea una nueva imagen para un servicio")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Imagen creada"),
@@ -107,6 +110,7 @@ public class ControllerImagenesServicios {
                 .body(new ImagenServicioOutput(nuevaImagen));
     }
 
+    // 4. Actualizar una imagen
     @Operation(summary = "Actualizar una imagen", description = "Actualiza los datos de una imagen existente")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Imagen actualizada"),
@@ -124,6 +128,7 @@ public class ControllerImagenesServicios {
         }
 
         ImagenServicio img = optionalImg.get();
+        // Verificamos que la imagen corresponda al servicio
         if (!img.getServicio().getId().equals(idServicio)) {
             return ResponseEntity.badRequest().body(Map.of(
                     "error", "La imagen no corresponde al servicio indicado",
@@ -132,6 +137,7 @@ public class ControllerImagenesServicios {
             ));
         }
 
+        // Actualizamos solo campos no nulos
         if (update.titulo() != null) {
             img.setTitulo(update.titulo());
         }
@@ -145,6 +151,7 @@ public class ControllerImagenesServicios {
             img.setFechaCreacion(update.fechaCreacion());
         }
         if (update.idServicio() != null) {
+            // Si deseas permitir cambiar la imagen de servicio
             Servicio nuevoServicio = servicioRepository.findById(update.idServicio())
                     .orElseThrow(() -> new RuntimeException("Servicio no encontrado"));
             img.setServicio(nuevoServicio);
@@ -154,6 +161,7 @@ public class ControllerImagenesServicios {
         return ResponseEntity.ok(new ImagenServicioOutput(img));
     }
 
+    // 5. Eliminar una imagen
     @Operation(summary = "Eliminar una imagen", description = "Elimina una imagen por su ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Imagen eliminada"),
@@ -189,6 +197,7 @@ public class ControllerImagenesServicios {
         return ResponseEntity.ok(response);
     }
 
+    // Manejo de validaciones: estilo similar a ControllerServicios
     @ControllerAdvice
     static class GlobalExceptionHandler {
         @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -202,4 +211,5 @@ public class ControllerImagenesServicios {
             return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
         }
     }
+
 }

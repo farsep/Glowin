@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -70,11 +71,17 @@ public class ControllerReservas {
             @ApiResponse(responseCode = "204", description = "No se encontró la reserva", content = @Content)
     })
     @GetMapping("/{id}")
-    public ResponseEntity<ReservaOutput> getReserva(
+    public ResponseEntity<?> getReserva(
             @Parameter(description = "ID de la reserva a recuperar", required = true) @PathVariable Long id) {
         Optional<Reserva> reserva = reservaRepo.findById(id);
-        return reserva.map(value -> ResponseEntity.ok(ConvertToOutput(value)))
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NO_CONTENT).build());
+        if (reserva.isPresent()) {
+            return ResponseEntity.ok(ConvertToOutput(reserva.get()));
+        } else {
+            JsonObject jsonObject = new JsonObject();
+            jsonObject.addProperty("message", "No se encontró la reserva");
+            HttpHeaders header = new HttpHeaders();
+            header.add("Content-Type", "application/json");
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).headers(header).body(jsonObject.toString());        }
     }
 
     // Operación para obtener reservas por ID de empleado
@@ -178,6 +185,45 @@ public class ControllerReservas {
             return ResponseEntity.created(
                     ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                             .buildAndExpand(reserva1.getId()).toUri()).body(ConvertToOutput(reserva1));
+        }
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("error", "Usuario, servicio o empleado no encontrado");
+        jsonObject.addProperty("status", "404");
+        jsonObject.addProperty("timestamp", LocalDate.now().toString());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(jsonObject.toString());
+    }
+
+    // Operación para actualizar una reserva por su ID
+    @Operation(summary = "Actualizar una reserva", description = "Actualiza los datos de una reserva existente")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Reserva actualizada", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"id\":1,\"fecha\":\"2023-10-01\",\"hora\":\"10:00\",\"empleado\":{\"id\":1,\"nombre\":\"Juan\"},\"cliente\":{\"id\":1,\"nombre\":\"Pedro\"},\"servicio\":{\"id\":1,\"nombre\":\"Corte de pelo\"}}"))),
+            @ApiResponse(responseCode = "404", description = "Reserva no encontrada", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"error\":\"Reserva no encontrada\",\"status\":\"404\",\"timestamp\":\"2023-10-01\"}")))
+    })
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateReserva(
+            @Parameter(description = "ID de la reserva a actualizar", required = true) @PathVariable Long id,
+            @Parameter(description = "Datos de actualización de la reserva", required = true) @Valid @RequestBody ReservaInput reservaInput) {
+        Optional<Reserva> reservaOptional = reservaRepo.findById(id);
+        if (reservaOptional.isEmpty()) {
+            JsonObject jsonObject = new JsonObject();
+            jsonObject.addProperty("error", "Reserva no encontrada");
+            jsonObject.addProperty("status", "404");
+            jsonObject.addProperty("timestamp", LocalDate.now().toString());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(jsonObject.toString());
+        }
+
+        Reserva reserva = reservaOptional.get();
+        Optional<Usuario> usuario = usuarioRepo.findById(reservaInput.idCliente());
+        Optional<Servicio> servicio = servicioRepo.findById(reservaInput.idServicio());
+        Optional<Empleado> empleado = empleadoRepo.findById(reservaInput.idEmpleado());
+        if (usuario.isPresent() && servicio.isPresent() && empleado.isPresent()) {
+            reserva.setCliente(usuario.get());
+            reserva.setServicio(servicio.get());
+            reserva.setEmpleado(empleado.get());
+            reserva.setFecha(LocalDate.parse(reservaInput.fecha()));
+            reserva.setHora(LocalTime.parse(reservaInput.hora()));
+            reservaRepo.save(reserva);
+            return ResponseEntity.ok(ConvertToOutput(reserva));
         }
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("error", "Usuario, servicio o empleado no encontrado");
