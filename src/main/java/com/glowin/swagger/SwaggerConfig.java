@@ -20,25 +20,27 @@ public class SwaggerConfig {
                 .components(new Components().addSecuritySchemes("Bearer Authentication", createAPIKeyScheme()))
                 .info(new Info().title("My REST API")
                         .description("""
-                                Esta API requiere autenticación utilizando tokens JWT. Los siguientes endpoints están disponibles:
-
-                                - Endpoints Públicos:
-                                  - `/swagger-ui.html`, `/v3/api-docs`, `/swagger-ui/**`, `/v3/api-docs/**`: UI de Swagger y documentación de la API.
-                                  - `POST /auth/**`: Endpoints de autenticación.
-                                  - `POST /usuarios/**`: Registro de usuarios.
-
-                                - Endpoints Protegidos:
-                                  - `/servicios/**`, `/empleados/**`, `/categorias-servicios/**`: Accesible por usuarios con roles `SUPER_ADMINISTRADOR` o `ADMINISTRADOR`.
-                                  - `GET /usuarios/**`, `PUT /usuarios/**`, `DELETE /usuarios/**`: Accesible por usuarios con roles `SUPER_ADMINISTRADOR`, `ADMINISTRADOR` o `CLIENTE`.
-
-                                Todos los demás endpoints requieren autenticación.
-
-                                Al iniciar sesión, la respuesta incluirá un token JWT que debe ser incluido en el encabezado Authorization de las solicitudes subsecuentes.
-
-                                Para pasar el token como un token Bearer en el encabezado Authorization, inclúyelo de la siguiente manera:
-                                - **Nombre del Encabezado**: `Authorization`
-                                - **Valor del Encabezado**: `Bearer your_jwt_token_here`
-                                """)
+                            Esta API requiere autenticación utilizando tokens JWT. Los siguientes endpoints están disponibles:
+                            
+                            - Endpoints Públicos:
+                              - `/swagger-ui.html`, `/v3/api-docs`, `/swagger-ui/**`, `/v3/api-docs/**`: UI de Swagger y documentación de la API.
+                              - `POST /auth/**`: Endpoints de autenticación.
+                              - `POST /usuarios/**`: Registro de usuarios.
+                              - `GET /reservas/all`: Obtener todas las reservas.
+                            
+                            - Endpoints Protegidos:
+                              - `/servicios/**`, `/empleados/**`, `/categorias-servicios/**`: Accesible por usuarios con roles `SUPER_ADMINISTRADOR` o `ADMINISTRADOR`.
+                              - `GET /usuarios/**`, `PUT /usuarios/**`, `DELETE /usuarios/**`: Accesible por usuarios con roles `SUPER_ADMINISTRADOR`, `ADMINISTRADOR` o `CLIENTE`.
+                              - `GET /reservas/**`, `POST /reservas/**`, `PUT /reservas/**`, `DELETE /reservas/**`: Requiere autenticación.
+                            
+                            Todos los demás endpoints requieren autenticación.
+                            
+                            Al iniciar sesión, la respuesta incluirá un token JWT que debe ser incluido en el encabezado Authorization de las solicitudes subsecuentes.
+                            
+                            Para pasar el token como un token Bearer en el encabezado Authorization, inclúyelo de la siguiente manera:
+                            - **Nombre del Encabezado**: `Authorization`
+                            - **Valor del Encabezado**: `Bearer your_jwt_token_here`
+                            """)
                         .version("JWT Token Implemented")
                         .contact(new Contact().name("Zaramambiches Team")
                                 .email("wazateam@gmail.com")
