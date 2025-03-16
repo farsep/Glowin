@@ -498,7 +498,7 @@ Ejemplo:
 ## 🖼️ Imágenes de Servicios
 
 ### 🟢 Listar imágenes de un servicio
-**📌 Endpoint:** `GET /servicios/{idServicio}/imagenes`
+**📌 Endpoint:** `GET /imagenes-servicios/{idServicio}/imagenes`
 
 **📖 Descripción:** Obtiene todas las imágenes asociadas a un servicio específico.
 
@@ -514,7 +514,7 @@ Ejemplo:
 ---
 
 ### 🟢 Obtener una imagen por ID
-**📌 Endpoint:** `GET /servicios/{idServicio}/imagenes/{idImagen}`
+**📌 Endpoint:** `GET /imagenes-servicios/{idServicio}/imagenes/{idImagen}`
 
 **📖 Descripción:** Obtiene una imagen específica de un servicio.
 
@@ -532,7 +532,7 @@ Ejemplo:
 ---
 
 ### 🟢 Crear una imagen para un servicio
-**📌 Endpoint:** `POST /servicios/{idServicio}/imagenes`
+**📌 Endpoint:** `POST /imagenes-servicios/{idServicio}/imagenes`
 
 **📖 Descripción:** Crea una nueva imagen y la asocia a un servicio.
 
@@ -554,7 +554,7 @@ Ejemplo:
 ---
 
 ### 🟢 Actualizar una imagen
-**📌 Endpoint:** `PUT /servicios/{idServicio}/imagenes/{idImagen}`
+**📌 Endpoint:** `PUT /imagenes-servicios/{idServicio}/imagenes/{idImagen}`
 
 **📖 Descripción:** Actualiza una imagen existente.
 
@@ -576,7 +576,7 @@ Ejemplo:
 ---
 
 ### 🟢 Eliminar una imagen
-**📌 Endpoint:** `DELETE /servicios/{idServicio}/imagenes/{idImagen}`
+**📌 Endpoint:** `DELETE /imagenes-servicios/{idServicio}/imagenes/{idImagen}`
 
 **📖 Descripción:** Elimina una imagen de un servicio.
 

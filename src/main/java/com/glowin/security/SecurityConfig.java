@@ -20,10 +20,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     @Autowired
-    private PreFilter preFilter;
+    private TokenFilter tokenFilter;
 
     @Autowired
     private AuthenticationConfiguration authenticationConfiguration;
+
+    @Autowired
+    private IpAddressFilter ipAddressFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -32,7 +35,15 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/swagger-ui.html", "/v3/api-docs", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/imagenes-servicios/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/usuarios/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/categorias-servicios/all").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/servicios/all").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/reservas/all").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/reservas/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/reservas/**").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/reservas/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/reservas/**").authenticated()
                         .requestMatchers("/servicios/**", "/empleados/**", "/categorias-servicios/**")
                         .hasAnyAuthority("SUPER_ADMINISTRADOR", "ADMINISTRADOR")
                         .requestMatchers(HttpMethod.GET, "/usuarios/**")
@@ -43,7 +54,7 @@ public class SecurityConfig {
                         .hasAnyAuthority("SUPER_ADMINISTRADOR", "ADMINISTRADOR", "CLIENTE")
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(preFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 

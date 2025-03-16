@@ -5,6 +5,10 @@ import com.glowin.models.Input.EmpleadoInput;
 import com.glowin.models.Update.EmpleadoUpdate;
 import com.glowin.models.output.EmpleadoOutput;
 import com.glowin.repository.IEmpleadoRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +32,14 @@ public class ControllerEmpleados {
     @Autowired
     private IEmpleadoRepository empleadoRepository;
 
+    @Operation(summary = "Obtener empleado por ID", description = "Recupera un empleado por su ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Empleado encontrado"),
+            @ApiResponse(responseCode = "404", description = "Empleado no encontrado")
+    })
     @GetMapping("/{id}")
-    public ResponseEntity<EmpleadoOutput> getEmpleado(@PathVariable Long id) {
+    public ResponseEntity<EmpleadoOutput> getEmpleado(
+            @Parameter(description = "ID del empleado a recuperar", required = true) @PathVariable Long id) {
         Optional<Empleado> empleado = empleadoRepository.findById(id);
         if (empleado.isPresent()) {
             return ResponseEntity.ok(new EmpleadoOutput(empleado.get()));
@@ -38,6 +48,11 @@ public class ControllerEmpleados {
         }
     }
 
+    @Operation(summary = "Obtener todos los empleados", description = "Recupera todos los empleados")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Empleados encontrados"),
+            @ApiResponse(responseCode = "204", description = "No se encontraron empleados")
+    })
     @GetMapping("/all")
     public ResponseEntity<List<EmpleadoOutput>> getAllEmpleados() {
         List<Empleado> empleados = empleadoRepository.findAll();
@@ -45,9 +60,15 @@ public class ControllerEmpleados {
         return ResponseEntity.ok(empleadoOutputs);
     }
 
+    @Operation(summary = "Registrar un nuevo empleado", description = "Crea un nuevo empleado")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Empleado creado"),
+            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos")
+    })
     @Transactional
     @PostMapping
-    public ResponseEntity<?> registerEmpleado(@Valid @RequestBody EmpleadoInput empleadoInput) {
+    public ResponseEntity<?> registerEmpleado(
+            @Parameter(description = "Datos de entrada del empleado", required = true) @Valid @RequestBody EmpleadoInput empleadoInput) {
         Empleado empleado = new Empleado(empleadoInput);
         empleadoRepository.save(empleado);
         return ResponseEntity.created(
@@ -55,8 +76,15 @@ public class ControllerEmpleados {
                         .buildAndExpand(empleado.getId()).toUri()).body(new EmpleadoOutput(empleado));
     }
 
+    @Operation(summary = "Actualizar un empleado", description = "Actualiza los datos de un empleado existente")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Empleado actualizado"),
+            @ApiResponse(responseCode = "404", description = "Empleado no encontrado")
+    })
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateEmpleado(@PathVariable Long id, @RequestBody EmpleadoUpdate empleadoUpdate) {
+    public ResponseEntity<?> updateEmpleado(
+            @Parameter(description = "ID del empleado a actualizar", required = true) @PathVariable Long id,
+            @Parameter(description = "Datos de actualización del empleado", required = true) @RequestBody EmpleadoUpdate empleadoUpdate) {
         Optional<Empleado> optionalEmpleado = empleadoRepository.findById(id);
 
         if (optionalEmpleado.isPresent()) {
@@ -69,8 +97,14 @@ public class ControllerEmpleados {
         }
     }
 
+    @Operation(summary = "Eliminar un empleado", description = "Elimina un empleado por su ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Empleado eliminado"),
+            @ApiResponse(responseCode = "404", description = "Empleado no encontrado")
+    })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, String>> deleteEmpleado(@PathVariable Long id) {
+    public ResponseEntity<Map<String, String>> deleteEmpleado(
+            @Parameter(description = "ID del empleado a eliminar", required = true) @PathVariable Long id) {
         Optional<Empleado> empleado = empleadoRepository.findById(id);
         if (empleado.isPresent()) {
             empleadoRepository.delete(empleado.get());
