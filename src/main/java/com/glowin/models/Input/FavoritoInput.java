@@ -1,11 +1,16 @@
 package com.glowin.models.Input;
 
-import jakarta.validation.constraints.NotBlank;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.validation.constraints.NotNull;
+
+import java.time.LocalDate;
 
 public record FavoritoInput(
-        @NotBlank
+        @NotNull
         Long idUsuario,
-        @NotBlank
-        Long idServicio
+        @NotNull
+        Long idServicio,
+        @JsonFormat(pattern = "yyyy-MM-dd")
+        LocalDate fechaAgregado
 ) {
 }

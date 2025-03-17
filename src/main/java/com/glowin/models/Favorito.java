@@ -1,5 +1,6 @@
 package com.glowin.models;
 
+import com.glowin.models.Input.FavoritoInput;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
