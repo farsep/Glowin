@@ -17,7 +17,7 @@ public class CategoriaServicioService {
     public CategoriaServicioDetallesDTO obtenerDetallesCategoriaServicio(Long id) {
         CategoriaServicio categoriaServicio = categoriaServicioRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Categoría de servicio no encontrada"));
-        String enlace = "https://tudominio.com/categorias-servicios/" + id;
+        String enlace = "https://localhost:5432/categorias-servicios/" + id;
         return new CategoriaServicioDetallesDTO(categoriaServicio.getNombre(), categoriaServicio.getUrlImagen(), enlace);
     }
 }
