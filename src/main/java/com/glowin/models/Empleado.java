@@ -1,5 +1,6 @@
 package com.glowin.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.glowin.models.Input.EmpleadoInput;
 import com.glowin.models.enums.TipoJornada;
 import jakarta.persistence.*;
@@ -41,7 +42,13 @@ public class Empleado {
     @OneToMany(mappedBy = "empleado")
     private Set<Reserva> reservas;
 
-    @ManyToMany(mappedBy = "empleados")
+    @ManyToMany
+    @JsonIgnore
+    @JoinTable(
+            name = "empleados_servicios",
+            joinColumns = @JoinColumn(name = "id_empleado"),
+            inverseJoinColumns = @JoinColumn(name = "id_servicio")
+    )
     private Set<Servicio> servicios;
 
     public Empleado(String nombre, String apellido, String email, String celular, BigDecimal salario, String dni, LocalDate fechaRegistro,  TipoJornada tipoJornada) {
