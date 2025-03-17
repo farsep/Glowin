@@ -48,7 +48,9 @@ public class ControllerFavoritos {
             return ResponseEntity.badRequest().body("Error: El servicio ya está en favoritos");
         }
 
-        Favorito favorito = favoritoRepository.save(new Favorito(usuario, servicio));
+        // ✅ Guardar correctamente el favorito
+        Favorito favorito = new Favorito(usuario, servicio);
+        favorito = favoritoRepository.save(favorito);
 
         return ResponseEntity.ok(new FavoritoOutput(
                 favorito.getId(),

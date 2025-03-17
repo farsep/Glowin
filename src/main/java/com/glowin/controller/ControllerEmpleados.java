@@ -69,7 +69,23 @@ public class ControllerEmpleados {
     @PostMapping
     public ResponseEntity<?> registerEmpleado(
             @Parameter(description = "Datos de entrada del empleado", required = true) @Valid @RequestBody EmpleadoInput empleadoInput) {
+        // Si la fecha de registro no se proporciona, se establece la fecha actual
+        if (empleadoInput.fechaRegistro() == null) {
+            empleadoInput = new EmpleadoInput(
+                    empleadoInput.nombre(),
+                    empleadoInput.apellido(),
+                    empleadoInput.email(),
+                    empleadoInput.celular(),
+                    empleadoInput.salario(),
+                    empleadoInput.dni(),
+                    LocalDate.now(),
+                    empleadoInput.tipoJornada()
+            );
+        }
+
+
         Empleado empleado = new Empleado(empleadoInput);
+
         empleadoRepository.save(empleado);
         return ResponseEntity.created(
                 ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
@@ -129,19 +145,5 @@ public class ControllerEmpleados {
         if (empleadoUpdate.dni() != null) empleado.setDni(empleadoUpdate.dni());
         if (empleadoUpdate.fechaRegistro() != null) empleado.setFechaRegistro(empleadoUpdate.fechaRegistro());
         if (empleadoUpdate.tipoJornada() != null) empleado.setTipoJornada(empleadoUpdate.tipoJornada());
-    }
-
-    @ControllerAdvice
-    public class GlobalExceptionHandler {
-        @ExceptionHandler(MethodArgumentNotValidException.class)
-        public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-            Map<String, String> errors = new HashMap<>();
-            ex.getBindingResult().getAllErrors().forEach((error) -> {
-                String fieldName = ((FieldError) error).getField();
-                String errorMessage = error.getDefaultMessage();
-                errors.put(fieldName, errorMessage);
-            });
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-        }
     }
 }
