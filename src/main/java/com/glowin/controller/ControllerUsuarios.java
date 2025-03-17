@@ -70,7 +70,9 @@ public class ControllerUsuarios {
     @Operation(summary = "Registrar un nuevo usuario", description = "Crea un nuevo usuario")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Usuario creado"),
-            @ApiResponse(responseCode = "409", description = "El email ya está en uso o ya existe un SUPER_ADMINISTRADOR")
+            @ApiResponse(responseCode = "409", description = "El email ya está en uso o ya existe un SUPER_ADMINISTRADOR"),
+            @ApiResponse(responseCode = "500", description = "Error al enviar el correo de confirmación"),
+            @ApiResponse(responseCode = "400", description = "Error de validación")
     })
     @Transactional
     @PostMapping
@@ -138,7 +140,8 @@ public class ControllerUsuarios {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Usuario actualizado"),
             @ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
-            @ApiResponse(responseCode = "409", description = "El email ya está en uso por otro usuario o ya existe un SUPER_ADMINISTRADOR")
+            @ApiResponse(responseCode = "409", description = "El email ya está en uso por otro usuario o ya existe un SUPER_ADMINISTRADOR"),
+            @ApiResponse(responseCode = "400", description = "Error de validación")
     })
     @PutMapping("/{id}")
     public ResponseEntity<?> updateUser(
@@ -239,17 +242,4 @@ public class ControllerUsuarios {
         ));
     }
 
-    @ControllerAdvice
-    public class GlobalExceptionHandler {
-        @ExceptionHandler(MethodArgumentNotValidException.class)
-        public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-            Map<String, String> errors = new HashMap<>();
-            ex.getBindingResult().getAllErrors().forEach((error) -> {
-                String fieldName = ((FieldError) error).getField();
-                String errorMessage = error.getDefaultMessage();
-                errors.put(fieldName, errorMessage);
-            });
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-        }
-    }
 }

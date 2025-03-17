@@ -52,6 +52,7 @@ public class TokenService {
         try {
             return Jwts.parser()
                     .setSigningKey(getSigningKey())
+                    .requireIssuer("Glowin")
                     .build()
                     .parseClaimsJws(token)
                     .getBody()
@@ -60,4 +61,6 @@ public class TokenService {
             throw new RuntimeException("Error verifying token", e);
         }
     }
+
+
 }

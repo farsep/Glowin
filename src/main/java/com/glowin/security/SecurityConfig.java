@@ -28,6 +28,9 @@ public class SecurityConfig {
     @Autowired
     private IpAddressFilter ipAddressFilter;
 
+    @Autowired
+    private CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity.csrf(csrf -> csrf.disable())
@@ -54,6 +57,7 @@ public class SecurityConfig {
                         .hasAnyAuthority("SUPER_ADMINISTRADOR", "ADMINISTRADOR", "CLIENTE")
                         .anyRequest().authenticated()
                 )
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(customAuthenticationEntryPoint))
                 .addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
