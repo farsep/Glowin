@@ -21,7 +21,6 @@ public record EmpleadoInput(
         BigDecimal salario,
         @NotBlank
         String dni,
-        @NotBlank
         @JsonFormat(pattern = "yyyy-MM-dd")
         LocalDate fechaRegistro,
         @NotBlank

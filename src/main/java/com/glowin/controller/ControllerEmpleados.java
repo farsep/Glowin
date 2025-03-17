@@ -69,7 +69,23 @@ public class ControllerEmpleados {
     @PostMapping
     public ResponseEntity<?> registerEmpleado(
             @Parameter(description = "Datos de entrada del empleado", required = true) @Valid @RequestBody EmpleadoInput empleadoInput) {
+        // Si la fecha de registro no se proporciona, se establece la fecha actual
+        if (empleadoInput.fechaRegistro() == null) {
+            empleadoInput = new EmpleadoInput(
+                    empleadoInput.nombre(),
+                    empleadoInput.apellido(),
+                    empleadoInput.email(),
+                    empleadoInput.celular(),
+                    empleadoInput.salario(),
+                    empleadoInput.dni(),
+                    LocalDate.now(),
+                    empleadoInput.tipoJornada()
+            );
+        }
+
+
         Empleado empleado = new Empleado(empleadoInput);
+
         empleadoRepository.save(empleado);
         return ResponseEntity.created(
                 ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")

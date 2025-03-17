@@ -50,7 +50,7 @@ public class Servicio {
     @JsonIgnore // Evita loops con empleados
     @ManyToMany
     @JoinTable(
-            name = "servicio_empleado",
+            name = "empleados_servicios",
             joinColumns = @JoinColumn(name = "id_servicio"),
             inverseJoinColumns = @JoinColumn(name = "id_empleado")
     )
