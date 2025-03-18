@@ -22,10 +22,12 @@ public class IpAddressFilter extends OncePerRequestFilter {
         String clientIp = request.getRemoteAddr();
         String requestUri = request.getRequestURI();
 
-        if (("/categorias-servicios/all".equals(requestUri) || "/servicios/all".equals(requestUri)) && !ALLOWED_IP.equals(clientIp)) {
+        filterChain.doFilter(request, response);
+
+        /*if (("/categorias-servicios/all".equals(requestUri) || "/servicios/all".equals(requestUri)) && !ALLOWED_IP.equals(clientIp)) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Forbidden");
         } else {
             filterChain.doFilter(request, response);
-        }
+        }*/
     }
 }

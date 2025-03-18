@@ -1,10 +1,13 @@
 package com.glowin.controller;
 
+import com.glowin.dto.CategoriaServicioDetallesDTO;
 import com.glowin.models.CategoriaServicio;
 import com.glowin.models.Input.CategoriaServicioInput;
 import com.glowin.models.output.CategoriaServicioOutput;
 import com.glowin.repository.ICategoriaServicioRepository;
 import com.glowin.repository.IServicioRepository;
+import com.glowin.service.CategoriaServicioService;
+import com.glowin.service.CompartirRedesSocialesService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -31,6 +34,12 @@ public class ControllerCategoriasServicios {
 
     @Autowired
     private IServicioRepository servicioRepository;
+
+    @Autowired
+    private CategoriaServicioService categoriaServicioService;
+
+    @Autowired
+    private CompartirRedesSocialesService compartirRedesSocialesService;
 
     @Operation(summary = "Obtener todas las categorías de servicios", description = "Recupera todas las categorías de servicios")
     @ApiResponses(value = {
@@ -64,6 +73,36 @@ public class ControllerCategoriasServicios {
             response.put("timestamp", LocalDate.now().toString());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
+    }
+
+    @Operation(summary = "Obtener detalles de la categoría de servicio", description = "Recupera los detalles de una categoría de servicio por su ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Detalles de la categoría encontrados", content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "404", description = "Categoría no encontrada", content = @Content)
+    })
+    @GetMapping("/{id}/detalles")
+    public ResponseEntity<CategoriaServicioDetallesDTO> obtenerDetallesCategoriaServicio(
+            @Parameter(description = "ID de la categoría a recuperar", required = true) @PathVariable Long id) {
+        CategoriaServicioDetallesDTO detalles = categoriaServicioService.obtenerDetallesCategoriaServicio(id);
+        return ResponseEntity.ok(detalles);
+    }
+
+    @Operation(summary = "Obtener enlaces para compartir la categoría de servicio", description = "Genera enlaces para compartir una categoría de servicio en redes sociales")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Enlaces generados", content = @Content(mediaType = "application/json")),
+            @ApiResponse(responseCode = "404", description = "Categoría no encontrada", content = @Content)
+    })
+    @GetMapping("/{id}/compartir")
+    public ResponseEntity<Map<String, String>> obtenerEnlacesCompartir(@PathVariable Long id) {
+        String enlace = categoriaServicioService.obtenerDetallesCategoriaServicio(id).getEnlace();
+        String enlaceFacebook = compartirRedesSocialesService.generarEnlaceCompartirFacebook(enlace);
+        String enlaceWhatsApp = compartirRedesSocialesService.generarEnlaceCompartirWhatsApp(enlace);
+
+        Map<String, String> enlaces = new HashMap<>();
+        enlaces.put("facebook", enlaceFacebook);
+        enlaces.put("whatsapp", enlaceWhatsApp);
+
+        return ResponseEntity.ok(enlaces);
     }
 
     @Operation(summary = "Actualizar una categoría de servicio", description = "Actualiza los detalles de una categoría de servicio existente")
