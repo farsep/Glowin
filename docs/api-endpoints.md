@@ -656,6 +656,53 @@ Ejemplo:
 
 ---
 
+## API de Servicios y Empleados
+
+### **Obtener IDs de servicios de un empleado**
+### 🔹 `GET /empleado/{idEmpleado}/servicios`
+### 📌 Descripción:
+Recupera todos los **IDs de servicios** que ofrece un **empleado** dado su `idEmpleado`.
+
+### ✅ **Parámetros**:
+| Parámetro   | Tipo   | Requerido | Descripción               |
+|------------|--------|-----------|---------------------------|
+| idEmpleado | Long   | Sí        | ID del empleado a consultar |
+
+### 🔄 **Respuestas**:
+| Código | Descripción                      |
+|--------|----------------------------------|
+| `200`  | Lista de IDs de servicios encontrada |
+| `404`  | Empleado no encontrado           |
+
+### 🔍 **Ejemplo de Respuesta `200`**:
+```json
+[1, 2, 5, 7]
+```
+
+---
+
+### **Obtener IDs de empleados que ofrecen un servicio**
+### 🔹 `GET /servicio/{idServicio}/empleados`
+### 📌 Descripción:
+Recupera todos los **IDs de empleados** que ofrecen un **servicio** dado su `idServicio`.
+
+### ✅ **Parámetros**:
+| Parámetro  | Tipo   | Requerido | Descripción             |
+|------------|--------|-----------|-------------------------|
+| idServicio | Long   | Sí        | ID del servicio a consultar |
+
+### 🔄 **Respuestas**:
+| Código | Descripción                         |
+|--------|-------------------------------------|
+| `200`  | Lista de IDs de empleados encontrada |
+| `404`  | Servicio no encontrado             |
+
+### 🔍 **Ejemplo de Respuesta `200`**:
+```json
+[3, 8, 12]
+```
+
+---
 ## 🔑 Autenticación
 
 ### 🟢 Login de usuario
@@ -705,4 +752,4 @@ Donde `email` es el correo con el que el usuario se registró.
 
 ---
 
-⏳ **Última actualización:** 2024-03-17
+⏳ **Última actualización:** 2024-03-18

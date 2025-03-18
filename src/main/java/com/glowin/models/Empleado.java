@@ -12,6 +12,7 @@ import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -49,7 +50,7 @@ public class Empleado {
             joinColumns = @JoinColumn(name = "id_empleado"),
             inverseJoinColumns = @JoinColumn(name = "id_servicio")
     )
-    private Set<Servicio> servicios;
+    private Set<Servicio> servicios = new HashSet<>(); // Evitar NullPointerException;
 
     public Empleado(String nombre, String apellido, String email, String celular, BigDecimal salario, String dni, LocalDate fechaRegistro,  TipoJornada tipoJornada) {
         this.nombre = nombre;
