@@ -15,5 +15,5 @@ public interface IServicioRepository extends JpaRepository<Servicio, Long> {
     @Query(value = "SELECT es.id_empleado FROM empleados_servicios es WHERE es.id_servicio = :idServicio", nativeQuery = true)
     List<Long> findEmpleadoIdsByServicioId(@Param("idServicio") Long idServicio);
 
-    Page<Servicio> findByNombreContaining(String query, Pageable pageable);
+    Page<Servicio> findByNombreContainingIgnoreCase(String query, Pageable pageable);
 }

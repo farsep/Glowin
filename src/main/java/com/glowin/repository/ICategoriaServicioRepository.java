@@ -13,5 +13,5 @@ public interface ICategoriaServicioRepository extends JpaRepository<CategoriaSer
     List<CategoriaServicio> findAll();
     Optional<CategoriaServicio> findByNombre(String nombre);
 
-    Page<Servicio> findByNombreContaining(String query, Pageable pageable);
+    Page<CategoriaServicio> findByNombreContaining(String query, Pageable pageable);
 }
