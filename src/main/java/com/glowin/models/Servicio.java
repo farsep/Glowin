@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -54,7 +55,7 @@ public class Servicio {
             joinColumns = @JoinColumn(name = "id_servicio"),
             inverseJoinColumns = @JoinColumn(name = "id_empleado")
     )
-    private Set<Empleado> empleados;
+    private Set<Empleado> empleados = new HashSet<>(); // Evitar NullPointerException;
 
     public Servicio(ServicioInput servicioInput, CategoriaServicio categoria) {
         this.nombre = servicioInput.nombre();

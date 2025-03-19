@@ -586,10 +586,123 @@ Ejemplo:
 - ❌ `400 Bad Request` - Si la imagen no pertenece al servicio.
 
 
+---
+
+
+## ⭐ Favoritos
+
+### 🟢 Marcar un servicio como favorito
+**📌 Endpoint:** `POST /favoritos`
+
+**📖 Descripción:** Permite a un usuario marcar un servicio como favorito.
+
+**📥 Cuerpo de la solicitud (`JSON`):**
+```json
+{
+  "idUsuario": "Long",
+  "idServicio": "Long"
+}
+```  
+
+**📤 Respuestas:**
+- ✅ `200 OK` - Servicio agregado a favoritos exitosamente.
+- ❌ `400 Bad Request` - Si el usuario o servicio no existen, o si el servicio ya está en favoritos.
+
+---
+
+### 🟢 Obtener favoritos de un usuario
+**📌 Endpoint:** `GET /favoritos/usuario/{usuarioId}`
+
+**📖 Descripción:** Obtiene la lista de servicios que un usuario ha marcado como favoritos.
+
+**📥 Parámetros:**  
+| Parámetro   | Tipo  | Descripción                           |  
+|------------|------|---------------------------------------|  
+| `usuarioId` | Long | ID del usuario del que se listarán sus favoritos. |
+
+**📤 Respuestas:**
+- ✅ `200 OK` - Lista de favoritos en formato JSON.
+- ❌ `400 Bad Request` - Si el usuario no existe.
+
+**📥 Ejemplo de respuesta (`JSON`):**
+```json
+[
+  {
+    "id": 1,
+    "idUsuario": 5,
+    "idServicio": 12,
+    "fechaAgregado": "2024-03-10"
+  }
+]
+```
 
 
 ---
 
+
+### 🟢 Eliminar un favorito
+**📌 Endpoint:** `DELETE /favoritos/{id}`
+
+**📖 Descripción:** Elimina un servicio de la lista de favoritos de un usuario.
+
+**📥 Parámetros:**  
+| Parámetro | Tipo  | Descripción |  
+|-----------|------|-------------|  
+| `id`      | Long | ID del favorito a eliminar. |
+
+**📤 Respuestas:**
+- ✅ `200 OK` - Favorito eliminado correctamente.
+- ❌ `400 Bad Request` - Si el favorito no existe.
+
+---
+
+## API de Servicios y Empleados
+
+### **Obtener IDs de servicios de un empleado**
+### 🔹 `GET /empleado/{idEmpleado}/servicios`
+### 📌 Descripción:
+Recupera todos los **IDs de servicios** que ofrece un **empleado** dado su `idEmpleado`.
+
+### ✅ **Parámetros**:
+| Parámetro   | Tipo   | Requerido | Descripción               |
+|------------|--------|-----------|---------------------------|
+| idEmpleado | Long   | Sí        | ID del empleado a consultar |
+
+### 🔄 **Respuestas**:
+| Código | Descripción                      |
+|--------|----------------------------------|
+| `200`  | Lista de IDs de servicios encontrada |
+| `404`  | Empleado no encontrado           |
+
+### 🔍 **Ejemplo de Respuesta `200`**:
+```json
+[1, 2, 5, 7]
+```
+
+---
+
+### **Obtener IDs de empleados que ofrecen un servicio**
+### 🔹 `GET /servicio/{idServicio}/empleados`
+### 📌 Descripción:
+Recupera todos los **IDs de empleados** que ofrecen un **servicio** dado su `idServicio`.
+
+### ✅ **Parámetros**:
+| Parámetro  | Tipo   | Requerido | Descripción             |
+|------------|--------|-----------|-------------------------|
+| idServicio | Long   | Sí        | ID del servicio a consultar |
+
+### 🔄 **Respuestas**:
+| Código | Descripción                         |
+|--------|-------------------------------------|
+| `200`  | Lista de IDs de empleados encontrada |
+| `404`  | Servicio no encontrado             |
+
+### 🔍 **Ejemplo de Respuesta `200`**:
+```json
+[3, 8, 12]
+```
+
+---
 ## 🔑 Autenticación
 
 ### 🟢 Login de usuario
@@ -639,4 +752,4 @@ Donde `email` es el correo con el que el usuario se registró.
 
 ---
 
-⏳ **Última actualización:** 2024-03-10
+⏳ **Última actualización:** 2024-03-18
