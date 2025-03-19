@@ -45,7 +45,7 @@ public class Reserva {
     @Enumerated
     @JdbcType(PostgreSQLEnumJdbcType.class)
     @Column(name = "estado", nullable = false)
-    @ColumnDefault("PENDIENTE")
+    @ColumnDefault("EN_CURSO")
     private Estado estado;
 
     public Reserva(Usuario cliente, Servicio servicio, Empleado empleado, LocalDate fecha, LocalTime hora, Estado estado) {

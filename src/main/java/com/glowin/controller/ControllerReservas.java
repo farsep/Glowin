@@ -167,9 +167,21 @@ public class ControllerReservas {
     }
 
     // Operación para registrar una nueva reserva
-    @Operation(summary = "Registrar una nueva reserva", description = "Crea una nueva reserva")
+    /**
+     * Registra una nueva reserva.
+     *
+     * @param reserva Los datos de entrada para la reserva, incluyendo:
+     *                - idCliente: ID del cliente (Long, no nulo)
+     *                - idServicio: ID del servicio (Long, no nulo)
+     *                - idEmpleado: ID del empleado (Long, no nulo)
+     *                - fecha: Fecha de la reserva en el formato "yyyy-MM-dd" (String, no vacío)
+     *                - hora: Hora de la reserva en el formato "HH:mm:ss" (String, no vacío)
+     *                - estado: Estado de la reserva (String, no vacío)
+     * @return ResponseEntity con la reserva creada o un mensaje de error si no se encuentra el usuario, servicio o empleado.
+     */
+    @Operation(summary = "Registrar una nueva reserva", description = "Crea una nueva reserva con los detalles proporcionados.\n\nFormato de fecha: yyyy-MM-dd\n\nFormato de hora: HH:mm:ss\n\nEstados disponibles: CONCLUIDA, EN CURSO, CONFIRMADA, CANCELADA")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Reserva creada", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"id\":1,\"fecha\":\"2023-10-01\",\"hora\":\"10:00\",\"empleado\":{\"id\":1,\"nombre\":\"Juan\"},\"cliente\":{\"id\":1,\"nombre\":\"Pedro\"},\"servicio\":{\"id\":1,\"nombre\":\"Corte de pelo\"}}"))),
+            @ApiResponse(responseCode = "201", description = "Reserva creada", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"id\":1,\"fecha\":\"2023-10-01\",\"hora\":\"10:00:00\",\"empleado\":{\"id\":1,\"nombre\":\"Juan\"},\"cliente\":{\"id\":1,\"nombre\":\"Pedro\"},\"servicio\":{\"id\":1,\"nombre\":\"Corte de pelo\"}}"))),
             @ApiResponse(responseCode = "404", description = "Usuario, servicio o empleado no encontrado", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"error\":\"Usuario, servicio o empleado no encontrado\",\"status\":\"404\",\"timestamp\":\"2023-10-01\"}")))
     })
     @Transactional
@@ -259,6 +271,21 @@ public class ControllerReservas {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(jsonObject.toString());
         }
     }
+
+/*    //Endpoint para retornar las reservas disponibles en formato de listas  en un rango de fechas para un servicio
+    @Operation(summary = "Obtener reservas disponibles", description = "Recupera las reservas disponibles en un rango de fechas para un servicio específico")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Reservas disponibles", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "[{\"fecha\":\"2023-10-01\",\"hora\":\"10:00\"}]"))),
+            @ApiResponse(responseCode = "204", description = "No se encontraron reservas disponibles", content = @Content)
+    })
+    @GetMapping("/available")
+    public ResponseEntity<?> getAvailableReservas(
+            @Parameter(description = "ID del servicio", required = true) @RequestParam Long idServicio,
+            @Parameter(description = "Dia de inicio en el formato yyyy-MM-dd", required = true) @RequestParam String fechaInicio,
+            @Parameter(description = "Dia de fin en el formato yyyy-MM-dd", required = true) @RequestParam String fechaFin) {
+        return ResponseEntity.ok(reservaRepo.findAvailableReservas(idServicio, fechaInicio, fechaFin));
+    }*/
+
 
     // Metodo para convertir una entidad Reserva a su representación de salida
     public ReservaOutput ConvertToOutput(Reserva reserva) {
