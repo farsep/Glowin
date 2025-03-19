@@ -278,19 +278,18 @@ public class ControllerReservas {
     @GetMapping("/available")
     public ResponseEntity<?> getAvailableReservas(
             @RequestParam Long idServicio,
-            @RequestParam String fechaInicio,
-            @RequestParam String fechaFin,
+            @RequestParam LocalDate fechaInicio,
+            @RequestParam LocalDate fechaFin,
             Pageable pageable) {
 
-        LocalDate startDate = LocalDate.parse(fechaInicio);
-        LocalDate endDate = LocalDate.parse(fechaFin);
 
-        Page<Reserva> reservasPage = reservaRepo.findByFechaBetweenAndServicioId(startDate, endDate, idServicio, pageable);
+
+        Page<Reserva> reservasPage = reservaRepo.findByFechaBetweenAndServicioId(fechaInicio, fechaFin, idServicio, pageable);
         List<Reserva> reservas = reservasPage.getContent();
 
         List<Map<String, Object>> availableSlots = new ArrayList<>();
 
-        for (LocalDate date : startDate.datesUntil(endDate.plusDays(1)).collect(Collectors.toList())) {
+        for (LocalDate date : fechaInicio.datesUntil(fechaFin.plusDays(1)).collect(Collectors.toList())) {
             List<Map<String, Object>> dailySlots = generateDailySlots(date);
             List<Map<String, Object>> reservedSlots = reservas.stream()
                     .filter(reserva -> reserva.getFecha().equals(date))
