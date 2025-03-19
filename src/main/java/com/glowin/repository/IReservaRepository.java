@@ -18,4 +18,7 @@ public interface IReservaRepository extends JpaRepository<Reserva, Long> {
     Page<Reserva> findByFechaBetween(String fechaInicio, String fechaFin, Pageable pageable);
 
     Page<Reserva> findByClienteId(Long id, Pageable pageable);
+
+    /*@Query("SELECT r FROM Reserva r WHERE r.servicio.id = :idServicio AND r.fecha BETWEEN :fechaInicio AND :fechaFin AND r.estado = 'PENDIENTE'")
+    Page<Reserva> findAvailableReservas(Long idServicio, String fechaInicio, String fechaFin);*/
 }
