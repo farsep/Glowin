@@ -179,7 +179,7 @@ public class ControllerReservas {
      *                - estado: Estado de la reserva (String, no vacío)
      * @return ResponseEntity con la reserva creada o un mensaje de error si no se encuentra el usuario, servicio o empleado.
      */
-    @Operation(summary = "Registrar una nueva reserva", description = "Crea una nueva reserva con los detalles proporcionados. El cuerpo de la solicitud debe tener el siguiente formato:\n{\n  \"idCliente\": 1,\n  \"idServicio\": 1,\n  \"idEmpleado\": 1,\n  \"fecha\": \"yyyy-MM-dd\",\n  \"hora\": \"HH:mm:ss\",\n  \"estado\": \"CONFIRMADA\"\n}")
+    @Operation(summary = "Registrar una nueva reserva", description = "Crea una nueva reserva con los detalles proporcionados.\n\nFormato de fecha: yyyy-MM-dd\n\nFormato de hora: HH:mm:ss\n\nEstados disponibles: CONCLUIDA, EN CURSO, CONFIRMADA, CANCELADA")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Reserva creada", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"id\":1,\"fecha\":\"2023-10-01\",\"hora\":\"10:00:00\",\"empleado\":{\"id\":1,\"nombre\":\"Juan\"},\"cliente\":{\"id\":1,\"nombre\":\"Pedro\"},\"servicio\":{\"id\":1,\"nombre\":\"Corte de pelo\"}}"))),
             @ApiResponse(responseCode = "404", description = "Usuario, servicio o empleado no encontrado", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"error\":\"Usuario, servicio o empleado no encontrado\",\"status\":\"404\",\"timestamp\":\"2023-10-01\"}")))

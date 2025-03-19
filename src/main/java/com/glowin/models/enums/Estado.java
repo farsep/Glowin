@@ -8,8 +8,8 @@ public enum Estado {
 
     private final String fullName;
 
-    Estado(String s) {
-        fullName = s;
+    Estado(String fullName) {
+        this.fullName = fullName;
     }
 
     public static Estado fromString(String estado) {
