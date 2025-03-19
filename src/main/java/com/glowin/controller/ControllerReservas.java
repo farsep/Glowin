@@ -25,16 +25,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/reservas")
@@ -132,8 +129,8 @@ public class ControllerReservas {
     })
     @GetMapping("/date")
     public ResponseEntity<?> getReservasByDate(
-            @Parameter(description = "Fecha de inicio en el formato yyyy-MM-dd", required = true) @RequestParam String fechaInicio,
-            @Parameter(description = "Fecha de fin en el formato yyyy-MM-dd", required = true) @RequestParam String fechaFin,
+            @Parameter(description = "Fecha de inicio en el formato yyyy-MM-dd", required = true) @RequestParam LocalDate fechaInicio,
+            @Parameter(description = "Fecha de fin en el formato yyyy-MM-dd", required = true) @RequestParam LocalDate fechaFin,
             Pageable pageable) {
         Page<ReservaOutput> reservas = reservaRepo.findByFechaBetween(fechaInicio, fechaFin, pageable).map(this::ConvertToOutput);
         if (reservas.isEmpty()) {
@@ -272,7 +269,7 @@ public class ControllerReservas {
         }
     }
 
-/*    //Endpoint para retornar las reservas disponibles en formato de listas  en un rango de fechas para un servicio
+    //Endpoint para retornar las reservas disponibles en formato de listas mostrando en slots de 1 hora los horarios disponibles que solo son de 9 AM a 9PM en un rango de fechas para un servicio
     @Operation(summary = "Obtener reservas disponibles", description = "Recupera las reservas disponibles en un rango de fechas para un servicio específico")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Reservas disponibles", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "[{\"fecha\":\"2023-10-01\",\"hora\":\"10:00\"}]"))),
@@ -280,11 +277,63 @@ public class ControllerReservas {
     })
     @GetMapping("/available")
     public ResponseEntity<?> getAvailableReservas(
-            @Parameter(description = "ID del servicio", required = true) @RequestParam Long idServicio,
-            @Parameter(description = "Dia de inicio en el formato yyyy-MM-dd", required = true) @RequestParam String fechaInicio,
-            @Parameter(description = "Dia de fin en el formato yyyy-MM-dd", required = true) @RequestParam String fechaFin) {
-        return ResponseEntity.ok(reservaRepo.findAvailableReservas(idServicio, fechaInicio, fechaFin));
-    }*/
+            @RequestParam Long idServicio,
+            @RequestParam String fechaInicio,
+            @RequestParam String fechaFin,
+            Pageable pageable) {
+
+        LocalDate startDate = LocalDate.parse(fechaInicio);
+        LocalDate endDate = LocalDate.parse(fechaFin);
+
+        Page<Reserva> reservasPage = reservaRepo.findByFechaBetweenAndServicioId(startDate, endDate, idServicio, pageable);
+        List<Reserva> reservas = reservasPage.getContent();
+
+        List<Map<String, Object>> availableSlots = new ArrayList<>();
+
+        for (LocalDate date : startDate.datesUntil(endDate.plusDays(1)).collect(Collectors.toList())) {
+            List<Map<String, Object>> dailySlots = generateDailySlots(date);
+            List<Map<String, Object>> reservedSlots = reservas.stream()
+                    .filter(reserva -> reserva.getFecha().equals(date))
+                    .map(reserva -> {
+                        Map<String, Object> slot = new HashMap<>();
+                        slot.put("fecha", reserva.getFecha().toString());
+                        slot.put("hora", reserva.getHora().toString());
+                        return slot;
+                    })
+                    .collect(Collectors.toList());
+
+            for (Map<String, Object> slot : dailySlots) {
+                boolean isReserved = reservedSlots.stream().anyMatch(reservedSlot -> reservedSlot.equals(slot));
+                if (!isReserved) {
+                    availableSlots.add(slot);
+                }
+            }
+        }
+
+        if (availableSlots.isEmpty()) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "No se encontraron reservas disponibles");
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
+        }
+
+        return ResponseEntity.ok(availableSlots);
+    }
+
+    private List<Map<String, Object>> generateDailySlots(LocalDate date) {
+        List<Map<String, Object>> slots = new ArrayList<>();
+        LocalTime startTime = LocalTime.of(9, 0);
+        LocalTime endTime = LocalTime.of(21, 0);
+
+        while (!startTime.isAfter(endTime.minusHours(1))) {
+            Map<String, Object> slot = new HashMap<>();
+            slot.put("fecha", date.toString());
+            slot.put("hora", startTime.toString());
+            slots.add(slot);
+            startTime = startTime.plusHours(1);
+        }
+
+        return slots;
+    }
 
 
     // Metodo para convertir una entidad Reserva a su representación de salida
