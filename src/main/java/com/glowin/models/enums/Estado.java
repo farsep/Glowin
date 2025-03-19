@@ -1,7 +1,8 @@
 package com.glowin.models.enums;
 
 public enum Estado {
-    PENDIENTE,
+    CONCLUIDA,
+    EN_CURSO,
     CONFIRMADA,
     CANCELADA;
 

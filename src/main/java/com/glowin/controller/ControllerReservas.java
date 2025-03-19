@@ -260,6 +260,21 @@ public class ControllerReservas {
         }
     }
 
+/*    //Endpoint para retornar las reservas disponibles en formato de listas  en un rango de fechas para un servicio
+    @Operation(summary = "Obtener reservas disponibles", description = "Recupera las reservas disponibles en un rango de fechas para un servicio específico")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Reservas disponibles", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "[{\"fecha\":\"2023-10-01\",\"hora\":\"10:00\"}]"))),
+            @ApiResponse(responseCode = "204", description = "No se encontraron reservas disponibles", content = @Content)
+    })
+    @GetMapping("/available")
+    public ResponseEntity<?> getAvailableReservas(
+            @Parameter(description = "ID del servicio", required = true) @RequestParam Long idServicio,
+            @Parameter(description = "Dia de inicio en el formato yyyy-MM-dd", required = true) @RequestParam String fechaInicio,
+            @Parameter(description = "Dia de fin en el formato yyyy-MM-dd", required = true) @RequestParam String fechaFin) {
+        return ResponseEntity.ok(reservaRepo.findAvailableReservas(idServicio, fechaInicio, fechaFin));
+    }*/
+
+
     // Metodo para convertir una entidad Reserva a su representación de salida
     public ReservaOutput ConvertToOutput(Reserva reserva) {
         return new ReservaOutput(reserva, reserva.getEmpleado(), reserva.getCliente(), reserva.getServicio());
