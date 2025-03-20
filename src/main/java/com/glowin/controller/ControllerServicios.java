@@ -5,6 +5,7 @@ import com.glowin.models.Input.ServicioInput;
 import com.glowin.models.Servicio;
 import com.glowin.models.Update.ServicioUpdate;
 import com.glowin.models.output.ServicioOutput;
+import com.glowin.service.CompartirRedesSocialesService;
 import com.glowin.repository.ICategoriaServicioRepository;
 import com.glowin.repository.IServicioRepository;
 import com.google.gson.JsonObject;
@@ -38,6 +39,10 @@ public class ControllerServicios {
 
     @Autowired
     private ICategoriaServicioRepository categoriaServicioRepository;
+
+
+    @Autowired
+    private CompartirRedesSocialesService compartirRedesSocialesService;
 
     // Operación para obtener un servicio por su ID
     @Operation(summary = "Obtener servicio por ID", description = "Recupera un servicio por su ID")
@@ -172,6 +177,22 @@ public class ControllerServicios {
 
             return ResponseEntity.ok(response);
         } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @Operation(summary = "Compartir un servicio en redes sociales", description = "Genera enlaces para compartir un servicio en Facebook y WhatsApp")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Enlaces generados"),
+            @ApiResponse(responseCode = "404", description = "Servicio no encontrado")
+    })
+    @GetMapping("/{id}/compartir")
+    public ResponseEntity<ServicioOutput> compartirServicio(
+            @Parameter(description = "ID del servicio a compartir", required = true) @PathVariable Long id) {
+        try {
+            ServicioOutput servicioOutput = compartirRedesSocialesService.generarEnlacesCompartirServicio(id);
+            return ResponseEntity.ok(servicioOutput);
+        } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
     }
