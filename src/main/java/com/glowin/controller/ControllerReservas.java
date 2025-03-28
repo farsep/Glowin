@@ -180,30 +180,78 @@ public class ControllerReservas {
      *                - estado: Estado de la reserva (String, no vacío)
      * @return ResponseEntity con la reserva creada o un mensaje de error si no se encuentra el usuario, servicio o empleado.
      */
-    @Operation(summary = "Registrar una nueva reserva", description = "Crea una nueva reserva con los detalles proporcionados.\n\nFormato de fecha: yyyy-MM-dd\n\nFormato de hora: HH:mm:ss\n\nEstados disponibles: CONCLUIDA, EN CURSO, CONFIRMADA, CANCELADA")
+    @Operation(summary = "Registrar una nueva reserva", description = "Crea una nueva reserva y envía un correo de confirmación al usuario.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Reserva creada", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"id\":1,\"fecha\":\"2023-10-01\",\"hora\":\"10:00:00\",\"empleado\":{\"id\":1,\"nombre\":\"Juan\"},\"cliente\":{\"id\":1,\"nombre\":\"Pedro\"},\"servicio\":{\"id\":1,\"nombre\":\"Corte de pelo\"}}"))),
-            @ApiResponse(responseCode = "404", description = "Usuario, servicio o empleado no encontrado", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"error\":\"Usuario, servicio o empleado no encontrado\",\"status\":\"404\",\"timestamp\":\"2023-10-01\"}")))
+            @ApiResponse(responseCode = "201", description = "Reserva creada"),
+            @ApiResponse(responseCode = "404", description = "Usuario, servicio o empleado no encontrado"),
+            @ApiResponse(responseCode = "500", description = "Error al enviar el correo")
     })
     @Transactional
     @PostMapping
-    public ResponseEntity<?> registerReserva(
-            @Parameter(description = "Datos de entrada de la reserva", required = true) @Valid @RequestBody ReservaInput reserva) {
-        Optional<Usuario> usuario = usuarioRepo.findById(reserva.idCliente());
-        Optional<Servicio> servicio = servicioRepo.findById(reserva.idServicio());
-        Optional<Empleado> empleado = empleadoRepo.findById(reserva.idEmpleado());
-        if (usuario.isPresent() && servicio.isPresent() && empleado.isPresent()) {
-            Reserva reserva1 = new Reserva(reserva, usuario.get(), servicio.get(), empleado.get());
-            reservaRepo.save(reserva1);
-            return ResponseEntity.created(
-                    ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-                            .buildAndExpand(reserva1.getId()).toUri()).body(ConvertToOutput(reserva1));
+    public ResponseEntity<?> registerReserva(@Valid @RequestBody ReservaInput reservaInput) {
+        Optional<Usuario> usuarioOpt = usuarioRepo.findById(reservaInput.idCliente());
+        Optional<Servicio> servicioOpt = servicioRepo.findById(reservaInput.idServicio());
+        Optional<Empleado> empleadoOpt = empleadoRepo.findById(reservaInput.idEmpleado());
+
+        if (usuarioOpt.isEmpty() || servicioOpt.isEmpty() || empleadoOpt.isEmpty()) {
+            return ResponseEntity.status(404).body(Map.of(
+                    "error", "Usuario, servicio o empleado no encontrado",
+                    "status", "404",
+                    "timestamp", LocalDate.now().toString()
+            ));
         }
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("error", "Usuario, servicio o empleado no encontrado");
-        jsonObject.addProperty("status", "404");
-        jsonObject.addProperty("timestamp", LocalDate.now().toString());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(jsonObject.toString());
+
+        Usuario usuario = usuarioOpt.get();
+        Servicio servicio = servicioOpt.get();
+        Empleado empleado = empleadoOpt.get();
+
+        Reserva reserva = new Reserva(reservaInput, usuario, servicio, empleado);
+        reservaRepo.save(reserva);
+
+        // Construcción del correo electrónico
+        String subject = "Confirmación de Reserva en Glowin";
+        String emailContent = String.format("""
+                <html>
+                <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+                    <h2>¡Hola %s!</h2>
+                    <p>Tu reserva ha sido confirmada con éxito. Aquí están los detalles:</p>
+                    <ul>
+                        <li><strong>Servicio:</strong> %s</li>
+                        <li><strong>Fecha:</strong> %s</li>
+                        <li><strong>Hora:</strong> %s</li>
+                        <li><strong>Empleado:</strong> %s</li>
+                    </ul>
+                    <p>Si tienes alguna consulta, no dudes en contactarnos.</p>
+                    <p>¡Gracias por elegir Glowin!</p>
+                    <br>
+                    <p>Saludos,<br>Equipo de Glowin</p>
+                </body>
+                </html>
+                """,
+                usuario.getNombre(),
+                servicio.getNombre(),
+                reserva.getFecha().toString(),
+                reserva.getHora().toString(),
+                empleado.getNombre()
+        );
+
+        // Enviar correo electrónico
+        try {
+            emailService.sendConfirmationEmail(usuario.getEmail(), subject, emailContent);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                    "error", "Error al enviar el correo",
+                    "status", "500",
+                    "timestamp", LocalDate.now().toString()
+            ));
+        }
+
+        return ResponseEntity.created(ServletUriComponentsBuilder.fromCurrentRequest()
+                        .path("/{id}").buildAndExpand(reserva.getId()).toUri())
+                .body(Map.of(
+                        "message", "Reserva creada y correo enviado con éxito",
+                        "reservaId", reserva.getId()
+                ));
     }
 
     // Operación para actualizar una reserva por su ID
