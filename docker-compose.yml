@@ -12,7 +12,7 @@ services:
     restart: always
 
   app:
-    image: valenpelaez99/glowin-backend
+    image: gravel3497/glowin
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/glowin
       SPRING_DATASOURCE_USERNAME: postgres
@@ -24,7 +24,7 @@ services:
     restart: always
 
   frontend:
-    image: valenpelaez99/glowin-frontend
+    image: gravel3497/glowinfront
     ports:
       - "80:80"
     environment:
