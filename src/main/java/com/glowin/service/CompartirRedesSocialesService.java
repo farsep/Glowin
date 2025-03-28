@@ -42,9 +42,11 @@ public class CompartirRedesSocialesService {
         Servicio servicio = servicioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Servicio not found"));
 
+        // Obtener la primera imagen relacionada al servicio
         List<ImagenServicio> imagenes = imagenServicioRepository.findByServicioId(id);
         String urlImagen = imagenes.isEmpty() ? "" : imagenes.get(0).getUrlImagen();
 
+        // Generar enlaces de compartir incluyendo la URL de la imagen
         String enlace = "https://localhost:5432/servicios/" + id;
         String enlaceFacebook = "https://www.facebook.com/sharer/sharer.php?u=" + URLEncoder.encode(enlace, StandardCharsets.UTF_8) + "&picture=" + URLEncoder.encode(urlImagen, StandardCharsets.UTF_8);
         String enlaceWhatsApp = "https://api.whatsapp.com/send?text=" + URLEncoder.encode(enlace, StandardCharsets.UTF_8) + "%20" + URLEncoder.encode(urlImagen, StandardCharsets.UTF_8);
