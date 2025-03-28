@@ -11,4 +11,7 @@ import java.util.List;
 public interface IFavoritoRepository extends JpaRepository<Favorito, Long> {
     boolean existsByUsuarioAndServicio(Usuario usuario, Servicio servicio);
     List<Favorito> findByUsuarioId(Long usuarioId);
+
+    // Metodo para eliminar los favoritos asociados a un usuario antes de eliminarlo
+    void deleteByUsuarioId(Long usuarioId);
 }

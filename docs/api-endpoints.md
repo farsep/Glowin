@@ -13,7 +13,7 @@
 |------------|------|-------------|
 | id         | Long | ID del usuario a buscar. |
 
-**📤 Respuestas:**
+**💄 Respuestas:**
 - `200 OK` – Retorna el usuario en formato JSON, por ejemplo:
 ```json
 {
@@ -28,10 +28,10 @@
 ---
 
 ### 🟢 Obtener todos los usuarios
-**📌 Endpoint:** `GET /usuarios/all`
+**📌 Endpoint:** `GET /usuarios/all`  
 **📚 Descripción:** Obtiene la lista de todos los usuarios registrados.
 
-**📤 Respuestas:**
+**💄 Respuestas:**
 - `200 OK` – Retorna una lista de usuarios en formato JSON, por ejemplo:
 ```json
 [
@@ -49,11 +49,12 @@
   }
 ]
 ```
+- `204 No Content` – No hay usuarios registrados.
 
 ---
 
 ### 🟢 Registrar un usuario
-**📌 Endpoint:** `POST /usuarios`
+**📌 Endpoint:** `POST /usuarios`  
 **📚 Descripción:** Registra un nuevo usuario en el sistema y envía un correo de confirmación.
 
 **👥 Cuerpo de la solicitud (`JSON`):**
@@ -70,17 +71,20 @@
 }
 ```
 **Notas:**
-- El campo `rol` define el tipo de usuario.
-- `fechaRegistro` y `horaRegistro` son opcionales; si no se envían, se asignan valores por defecto en el servidor.
+- El campo `email` debe ser único en el sistema.
+- `fechaRegistro` y `horaRegistro` son opcionales y se asignan por defecto en el servidor.
+- Solo puede haber un `SUPER_ADMINISTRADOR` en el sistema.
 
-**📤 Respuestas:**
+**💄 Respuestas:**
 - `201 Created` – Usuario creado exitosamente.
-- `409 Conflict` – Si el email ya está en uso o si ya existe un usuario con el rol `SUPER_ADMINISTRADOR`.
+- `409 Conflict` – Si el email ya está en uso o si ya existe un `SUPER_ADMINISTRADOR`.
+- `400 Bad Request` – Datos inválidos.
+- `500 Internal Server Error` – Error al enviar el correo de confirmación.
 
 ---
 
 ### 🟢 Actualizar un usuario
-**📌 Endpoint:** `PUT /usuarios/{id}`
+**📌 Endpoint:** `PUT /usuarios/{id}`  
 **📚 Descripción:** Actualiza los datos de un usuario existente.
 
 **👥 Parámetros de ruta:**
@@ -102,20 +106,21 @@
   "horaRegistro": "HH:mm:ss"
 }
 ```
-Todos los campos son opcionales. Solo se actualizarán aquellos que se incluyan.
+**Notas:**
+- Todos los campos son opcionales. Solo se actualizarán los que se incluyan en la solicitud.
+- Si se actualiza el `email`, debe ser único.
+- No se puede actualizar a `SUPER_ADMINISTRADOR` si ya existe uno.
 
-**📤 Respuestas:**
+**💄 Respuestas:**
 - `200 OK` – Usuario actualizado correctamente.
 - `404 Not Found` – Si el usuario no existe.
-- `409 Conflict` – Si se intenta:
-    - Asignar un email que ya está en uso por otro usuario.
-    - Asignar el rol `SUPER_ADMINISTRADOR` cuando ya existe uno en la base de datos.
+- `409 Conflict` – Si el nuevo email ya está en uso o se intenta asignar `SUPER_ADMINISTRADOR` cuando ya existe uno.
 
 ---
 
 ### 🟢 Eliminar un usuario
-**📌 Endpoint:** `DELETE /usuarios/{id}`
-**📚 Descripción:** Elimina un usuario por su ID. Si se intenta eliminar un usuario con rol `SUPER_ADMINISTRADOR`, se debe proporcionar un `nuevoSuperAdminId` para transferir el rol antes de eliminarlo.
+**📌 Endpoint:** `DELETE /usuarios/{id}`  
+**📚 Descripción:** Elimina un usuario por su ID. Si el usuario es `SUPER_ADMINISTRADOR`, se debe proporcionar un `nuevoSuperAdminId` antes de eliminarlo.
 
 **👥 Parámetros:**
 
@@ -124,10 +129,16 @@ Todos los campos son opcionales. Solo se actualizarán aquellos que se incluyan.
 | id         | Long | ID del usuario a eliminar. |
 | nuevoSuperAdminId | Long | (Opcional) ID del nuevo `SUPER_ADMINISTRADOR` si se está eliminando al actual. |
 
-**📤 Respuestas:**
+**Notas:**
+- Antes de eliminar un usuario, se eliminan todas sus reservas y favoritos.
+- Si el usuario es `SUPER_ADMINISTRADOR`, debe existir otro usuario para asignarle el rol antes de eliminarlo.
+
+**💄 Respuestas:**
 - `200 OK` – Usuario eliminado correctamente.
 - `404 Not Found` – Si el usuario no existe.
 - `409 Conflict` – Si el usuario es `SUPER_ADMINISTRADOR` y no se ha asignado uno nuevo.
+
+
 
 
 ---

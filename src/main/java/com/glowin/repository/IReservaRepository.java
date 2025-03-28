@@ -22,4 +22,9 @@ public interface IReservaRepository extends JpaRepository<Reserva, Long> {
     Page<Reserva> findByClienteId(Long id, Pageable pageable);
 
     Page<Reserva> findByFechaBetweenAndServicioId(LocalDate parse, LocalDate parse1, Long idServicio, Pageable pageable);
+
+    //  Metodo para eliminar reservas de un cliente
+    void deleteByClienteId(Long clienteId);
+
+
 }
