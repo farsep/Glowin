@@ -19,7 +19,7 @@ generate_version:
     paths:
       - VERSION
   only:
-    - main
+    - main2
 
 build:
   stage: deploy
@@ -41,4 +41,4 @@ build:
     - echo "$DOCKER_PASSWORD" | docker login --username "$DOCKER_USERNAME" --password-stdin
     - docker push "gravel3497/glowin:latest"
   only:
-    - main
+    - main2
