@@ -48,6 +48,13 @@ public class Reserva {
     @ColumnDefault("EN_CURSO")
     private Estado estado;
 
+    @Column(name = "fecha_creacion", nullable = false)
+    private LocalDate fechaCreacion;
+
+    @Column(name = "hora_creacion", nullable = false)
+    @ColumnDefault("CURRENT_TIMESTAMP")
+    private LocalTime horaCreacion;
+
     public Reserva(Usuario cliente, Servicio servicio, Empleado empleado, LocalDate fecha, LocalTime hora, Estado estado) {
         this.cliente = cliente;
         this.servicio = servicio;
@@ -55,6 +62,8 @@ public class Reserva {
         this.fecha = fecha;
         this.hora = hora;
         this.estado = estado;
+        this.fechaCreacion = LocalDate.now();
+        this.horaCreacion = LocalTime.now();
     }
 
     public Reserva(ReservaInput reserva, Usuario cliente, Servicio servicio, Empleado empleado) {
@@ -66,5 +75,7 @@ public class Reserva {
         this.fecha = LocalDate.parse(reserva.fecha(), dateFormatter);
         this.hora = LocalTime.parse(reserva.hora(), timeFormatter);
         this.estado = Estado.fromString(reserva.estado());
+        this.fechaCreacion = LocalDate.now();
+        this.horaCreacion = LocalTime.now();
     }
 }

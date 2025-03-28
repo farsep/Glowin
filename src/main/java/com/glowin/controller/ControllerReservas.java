@@ -10,6 +10,7 @@ import com.glowin.repository.IEmpleadoRepository;
 import com.glowin.repository.IReservaRepository;
 import com.glowin.repository.IServicioRepository;
 import com.glowin.repository.IUsuarioRepository;
+import com.glowin.service.EmailService;
 import com.google.gson.JsonObject;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -48,6 +49,9 @@ public class ControllerReservas {
 
     @Autowired
     private IServicioRepository servicioRepo;
+
+    @Autowired
+    private EmailService emailService;
 
     // Operación para obtener todas las reservas con paginación
     @Operation(summary = "Obtener todas las reservas", description = "Recupera todas las reservas con paginación")
