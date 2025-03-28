@@ -28,6 +28,8 @@ build:
   needs: ["generate_version"]
   dependencies:
     - generate_version
+  before_script:
+    - apk add --no-cache bash
   script:
     - export VERSION=$(cat VERSION)
     - echo "SPRING_MAIL_HOST=${SPRING_MAIL_HOST}"
