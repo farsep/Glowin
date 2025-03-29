@@ -5,12 +5,15 @@ import com.glowin.models.Update.UsuarioUpdate;
 import com.glowin.models.Usuario;
 import com.glowin.models.enums.Rol;
 import com.glowin.models.output.UsuarioOutput;
+import com.glowin.repository.IFavoritoRepository;
+import com.glowin.repository.IReservaRepository;
 import com.glowin.repository.IUsuarioRepository;
 import com.glowin.service.EmailService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +32,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/usuarios")
+@Tag(name = "Usuarios", description = "Endpoints para la gestión de usuarios")
 public class ControllerUsuarios {
     @Autowired
     private IUsuarioRepository usuarioRepository;
@@ -38,6 +42,12 @@ public class ControllerUsuarios {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private IReservaRepository reservaRepository;
+
+    @Autowired
+    private IFavoritoRepository favoritoRepository;
 
     @Operation(summary = "Obtener usuario por ID", description = "Recupera un usuario por su ID")
     @ApiResponses(value = {
@@ -194,10 +204,12 @@ public class ControllerUsuarios {
             @ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
             @ApiResponse(responseCode = "409", description = "Debe asignar un nuevo SUPER_ADMINISTRADOR antes de eliminar este usuario")
     })
+    @Transactional
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deleteUser(
             @Parameter(description = "ID del usuario a eliminar", required = true) @PathVariable Long id,
             @Parameter(description = "ID del nuevo SUPER_ADMINISTRADOR", required = false) @RequestParam(required = false) Long nuevoSuperAdminId) {
+
         Optional<Usuario> user = usuarioRepository.findById(id);
 
         if (user.isEmpty()) {
@@ -226,12 +238,15 @@ public class ControllerUsuarios {
             }
 
             Usuario nuevoSuperAdmin = nuevoAdmin.get();
-
             usuarioRepository.delete(usuario);
-
             nuevoSuperAdmin.setRol(Rol.SUPER_ADMINISTRADOR);
             usuarioRepository.save(nuevoSuperAdmin);
+
         } else {
+            // **Primero elimina las reservas y favoritos asociados**
+            reservaRepository.deleteByClienteId(usuario.getId());
+            favoritoRepository.deleteByUsuarioId(usuario.getId());
+
             usuarioRepository.delete(usuario);
         }
 

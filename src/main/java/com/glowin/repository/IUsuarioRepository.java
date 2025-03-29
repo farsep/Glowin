@@ -14,4 +14,5 @@ public interface IUsuarioRepository extends JpaRepository<Usuario, Long> {
     // sirve para verificar si el rol SUPER_ADMINISTRADOR ya existe en la base de datos
     boolean existsByRol(Rol rol);
     boolean existsByEmail(String email);
+
 }
