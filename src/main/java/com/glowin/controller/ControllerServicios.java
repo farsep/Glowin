@@ -1,13 +1,16 @@
 package com.glowin.controller;
 
 import com.glowin.models.CategoriaServicio;
+import com.glowin.models.ImagenServicio;
 import com.glowin.models.Input.ServicioInput;
 import com.glowin.models.Servicio;
 import com.glowin.models.Update.ServicioUpdate;
 import com.glowin.models.output.ServicioOutput;
+import com.glowin.models.output.ImagenServicioOutput;
 import com.glowin.service.CompartirRedesSocialesService;
 import com.glowin.repository.ICategoriaServicioRepository;
 import com.glowin.repository.IServicioRepository;
+import com.glowin.repository.IImagenServicioRepository;
 import com.google.gson.JsonObject;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -43,6 +46,9 @@ public class ControllerServicios {
 
     @Autowired
     private CompartirRedesSocialesService compartirRedesSocialesService;
+
+    @Autowired
+    private IImagenServicioRepository imagenServicioRepository;
 
     // Operación para obtener un servicio por su ID
     @Operation(summary = "Obtener servicio por ID", description = "Recupera un servicio por su ID")
@@ -191,6 +197,15 @@ public class ControllerServicios {
             @Parameter(description = "ID del servicio a compartir", required = true) @PathVariable Long id) {
         try {
             ServicioOutput servicioOutput = compartirRedesSocialesService.generarEnlacesCompartirServicio(id);
+
+            // Obtener la imagen del servicio
+            Optional<ImagenServicio> optionalImg = imagenServicioRepository.findByServicioId(id).stream().findFirst();
+            if (optionalImg.isPresent()) {
+                ImagenServicio img = optionalImg.get();
+                ImagenServicioOutput imagenServicioOutput = new ImagenServicioOutput(img);
+                servicioOutput = new ServicioOutput(servicioOutput, imagenServicioOutput);
+            }
+
             return ResponseEntity.ok(servicioOutput);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
