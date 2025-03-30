@@ -18,5 +18,8 @@ public record EmpleadoUpdate(
         String dni,
         @JsonFormat(pattern = "yyyy-MM-dd")
         LocalDate fechaRegistro,
-        TipoJornada tipoJornada) {
+        TipoJornada tipoJornada,
+        String profesion,
+        String urlFoto
+) {
 }

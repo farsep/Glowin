@@ -79,7 +79,9 @@ public class ControllerEmpleados {
                     empleadoInput.salario(),
                     empleadoInput.dni(),
                     LocalDate.now(),
-                    empleadoInput.tipoJornada()
+                    empleadoInput.tipoJornada(),
+                    empleadoInput.profesion(),
+                    empleadoInput.urlFoto()
             );
         }
 
@@ -145,5 +147,7 @@ public class ControllerEmpleados {
         if (empleadoUpdate.dni() != null) empleado.setDni(empleadoUpdate.dni());
         if (empleadoUpdate.fechaRegistro() != null) empleado.setFechaRegistro(empleadoUpdate.fechaRegistro());
         if (empleadoUpdate.tipoJornada() != null) empleado.setTipoJornada(empleadoUpdate.tipoJornada());
+        if (empleadoUpdate.profesion() != null) empleado.setProfesion(empleadoUpdate.profesion());
+        if (empleadoUpdate.urlFoto() != null) empleado.setUrlFoto(empleadoUpdate.urlFoto());
     }
 }

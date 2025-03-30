@@ -34,6 +34,9 @@ public class Empleado {
     private String dni;
     @Column(name = "fecha_registro", nullable = false)
     private LocalDate fechaRegistro;
+    private String profesion;
+    @Column(name = "url_foto")
+    private String urlFoto;
 
     @Enumerated
     @JdbcType(PostgreSQLEnumJdbcType.class)
@@ -52,7 +55,7 @@ public class Empleado {
     )
     private Set<Servicio> servicios = new HashSet<>(); // Evitar NullPointerException;
 
-    public Empleado(String nombre, String apellido, String email, String celular, BigDecimal salario, String dni, LocalDate fechaRegistro,  TipoJornada tipoJornada) {
+    public Empleado(String nombre, String apellido, String email, String celular, BigDecimal salario, String dni, LocalDate fechaRegistro,  TipoJornada tipoJornada, String profesion, String urlFoto) {
         this.nombre = nombre;
         this.apellido = apellido;
         this.email = email;
@@ -61,6 +64,8 @@ public class Empleado {
         this.fechaRegistro= fechaRegistro;
         this.dni = dni;
         this.tipoJornada = tipoJornada;
+        this.profesion = profesion;
+        this.urlFoto = urlFoto;
     }
 
     public Empleado(EmpleadoInput empleadoInput) {
@@ -72,5 +77,7 @@ public class Empleado {
         this.dni = empleadoInput.dni();
         this.fechaRegistro = empleadoInput.fechaRegistro() != null ? empleadoInput.fechaRegistro() : LocalDate.now();
         this.tipoJornada = TipoJornada.fromString(empleadoInput.tipoJornada());
+        this.profesion = empleadoInput.profesion();
+        this.urlFoto = empleadoInput.urlFoto();
     }
 }
