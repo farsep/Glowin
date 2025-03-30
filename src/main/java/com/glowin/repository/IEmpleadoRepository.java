@@ -19,4 +19,10 @@ public interface IEmpleadoRepository extends JpaRepository<Empleado, Long> {
     @Query(value = "SELECT es.id_servicio FROM empleados_servicios es WHERE es.id_empleado = :idEmpleado", nativeQuery = true)
     List<Long> findServicioIdsByEmpleadoId(@Param("idEmpleado") Long idEmpleado);
 
+    // Este metodo es necesario para poder obtener los empleados de un servicio y su tipo de jornada
+    @Query(value = "SELECT e.* FROM empleados e " +
+            "JOIN empleados_servicios es ON e.id = es.id_empleado " +
+            "WHERE es.id_servicio = :idServicio AND e.tipo_jornada = CAST(:tipoJornada AS tipo_jornada)", nativeQuery = true)
+    List<Empleado> findEmpleadosByServicioAndTipoJornada(@Param("idServicio") Long idServicio, @Param("tipoJornada") String tipoJornada);
+
 }
