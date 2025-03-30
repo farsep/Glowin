@@ -24,6 +24,10 @@ public record EmpleadoInput(
         @JsonFormat(pattern = "yyyy-MM-dd")
         LocalDate fechaRegistro,
         @NotBlank
-        String tipoJornada
+        String tipoJornada,
+        @NotBlank
+        String profesion,
+        @NotBlank
+        String urlFoto
 ) {
 }
