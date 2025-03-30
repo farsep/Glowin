@@ -599,6 +599,95 @@ Ejemplo:
 
 ---
 
+## 📅 Reservas
+
+### 🟢 Generar horarios disponibles por día
+**📌 Método interno:** `generateDailySlots(LocalDate date)`  
+**📚 Descripción:** Genera una lista de franjas horarias disponibles en un día específico.
+
+**⚙️ Parámetros:**
+
+| Parámetro | Tipo       | Descripción |
+|-----------|-----------|-------------|
+| date      | LocalDate | Fecha para la que se generarán los horarios disponibles. |
+
+**💡 Detalles:**
+- Se generan franjas horarias desde las `09:00` hasta las `21:00`.
+- Cada franja tiene una duración de `1 hora`.
+
+**🔄 Retorno:**
+Devuelve una lista de objetos con el siguiente formato:
+```json
+[
+  { "fecha": "2025-03-30", "hora": "09:00" },
+  { "fecha": "2025-03-30", "hora": "10:00" }
+]
+```
+
+---
+
+### 🟢 Registrar una nueva reserva
+**📌 Endpoint:** `POST /reservas`  
+**📚 Descripción:** Registra una nueva reserva y envía un correo de confirmación al usuario.
+
+**📥 Cuerpo de la solicitud (`JSON`):**
+```json
+{
+  "idCliente": 1,
+  "idServicio": 2,
+  "idEmpleado": 3,
+  "fecha": "2025-04-10",
+  "hora": "14:00:00",
+  "estado": "PENDIENTE"
+}
+```
+
+**📜 Notas:**
+- `idCliente`, `idServicio` e `idEmpleado` son obligatorios.
+- `fecha` debe estar en formato `yyyy-MM-dd`.
+- `hora` debe estar en formato `HH:mm:ss`.
+
+**💄 Respuestas:**
+- `201 Created` – Reserva creada y correo enviado exitosamente.
+- `404 Not Found` – Usuario, servicio o empleado no encontrado.
+- `500 Internal Server Error` – Error al enviar el correo.
+
+---
+
+### 🟢 Actualizar una reserva
+**📌 Endpoint:** `PUT /reservas/{id}`  
+**📚 Descripción:** Actualiza los datos de una reserva existente.
+
+**👥 Parámetros de ruta:**
+
+| Parámetro | Tipo  | Descripción |
+|-----------|------|-------------|
+| id        | Long | ID de la reserva a actualizar. |
+
+**📥 Cuerpo de la solicitud (`JSON`):**
+```json
+{
+  "idCliente": 1,
+  "idServicio": 2,
+  "idEmpleado": 3,
+  "fecha": "2025-04-10",
+  "hora": "14:00:00",
+  "estado": "CONFIRMADA"
+}
+```
+
+**📜 Notas:**
+- Todos los campos son opcionales, solo se actualizarán los que se incluyan.
+- Si `estado` cambia a `CONFIRMADA`, se enviará un correo de confirmación.
+- Si `estado` cambia a `CANCELADA`, se enviará un correo notificando la cancelación.
+
+**💄 Respuestas:**
+- `200 OK` – Reserva actualizada correctamente.
+- `404 Not Found` – Reserva o entidad relacionada no encontrada.
+- `500 Internal Server Error` – Error al enviar el correo de confirmación o cancelación.
+
+
+---
 
 ## ⭐ Favoritos
 

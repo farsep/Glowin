@@ -11,6 +11,9 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface IReservaRepository extends JpaRepository<Reserva, Long> {
+
+    Page<Reserva> findById(Long id, Pageable pageable);
+
     Page<Reserva> findAll(Pageable pageable);
 
     Page<Reserva> findByEmpleadoId(Long id, Pageable pageable);
