@@ -1,2 +1,0 @@
--- Prueba para ver si funciona la rama main2
--- Nuevo comentario
