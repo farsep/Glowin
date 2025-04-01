@@ -9,6 +9,7 @@ import com.glowin.repository.IFavoritoRepository;
 import com.glowin.repository.IReservaRepository;
 import com.glowin.repository.IUsuarioRepository;
 import com.glowin.service.EmailService;
+import com.glowin.service.CompartirRedesSocialesService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -48,6 +49,9 @@ public class ControllerUsuarios {
 
     @Autowired
     private IFavoritoRepository favoritoRepository;
+
+    @Autowired
+    private CompartirRedesSocialesService compartirRedesSocialesService;
 
     @Operation(summary = "Obtener usuario por ID", description = "Recupera un usuario por su ID")
     @ApiResponses(value = {
@@ -256,5 +260,22 @@ public class ControllerUsuarios {
                 "timestamp", LocalDate.now().toString()
         ));
     }
+
+
+    @Operation(summary = "Redirigir al soporte al cliente", description = "Genera un enlace de WhatsApp para redirigir al soporte al cliente")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Enlace generado con éxito"),
+            @ApiResponse(responseCode = "404", description = "Super Admin no encontrado")
+    })
+    @GetMapping("/soporte")
+    public ResponseEntity<Map<String, String>> redirectToSupport() {
+        try {
+            String whatsappLink = compartirRedesSocialesService.generarEnlaceWhatsApp();
+            return ResponseEntity.ok(Map.of("whatsappLink", whatsappLink));
+        } catch (Exception e) {
+            return ResponseEntity.status(404).body(Map.of("error", e.getMessage()));
+        }
+    }
+
 
 }
