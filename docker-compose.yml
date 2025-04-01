@@ -28,7 +28,7 @@ services:
     ports:
       - "80:80"
     environment:
-      - VITE_API_URL=http://IP_PUBLICA_EC2:8080
+      - VITE_API_URL=http://$BACKEND_PUBLIC_IP:8080
     depends_on:
       - app
     restart: always
