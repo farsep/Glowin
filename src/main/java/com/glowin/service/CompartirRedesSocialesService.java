@@ -83,7 +83,7 @@ public class CompartirRedesSocialesService {
     // Generar enlace de WhatsApp para contactar al super administrador (atención al cliente)
     public String generarEnlaceWhatsApp() {
         String numeroWhatsApp = obtenerNumeroWhatsAppSuperAdmin();
-        String mensajePredeterminado = "Hola, equipo de atención al cliente. Necesito asistencia con [breve descripción del problema o servicio]. Agradezco su pronta respuesta.";
+        String mensajePredeterminado = "Hola, equipo de Glowin. Necesito asistencia con [breve descripción del problema o servicio]. Agradezco su pronta respuesta.";
         String mensajeSanitizado = URLEncoder.encode(mensajePredeterminado, StandardCharsets.UTF_8);
         return "https://api.whatsapp.com/send?phone=" + numeroWhatsApp + "&text=" + mensajeSanitizado;
     }
