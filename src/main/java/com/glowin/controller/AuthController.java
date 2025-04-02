@@ -103,51 +103,25 @@ public class AuthController {
 
         Usuario user = optionalUser.get();
 
-        String subject = "Reenvío de confirmación de registro";
-        String text = String.format("""
- 
-                <html>
- 
-                <body style="font-family: Arial, sans-serif; line-height: 1.6;">
- 
-                <p>Estimado/a %s,</p>
- 
-                <p>¡Tu registro ha sido exitoso!</p>
- 
-                <p>Detalles de tu cuenta:</p>
- 
-                <ul>
- 
-                    <li>Nombre de usuario: %s</li>
- 
-                    <li>Correo electrónico: %s</li>
- 
-                </ul>
- 
-                <p>Puedes iniciar sesión en tu cuenta utilizando el siguiente enlace:</p>
- 
-
-                <a href="http://localhost/iniciar-sesion" style="color: #1a73e8;" target="_blank">Iniciar sesión</a>
- 
-
-                <a href="http://localhost/ingresar" style="color: #1a73e8;" target="_blank">Iniciar sesión</a>
- 
-                <p>Si no has solicitado este registro, por favor ignora este correo.</p>
- 
-                <p>Saludos,<br>Andrés<br>CEO de Glowin</p>
- 
-                </body>
- 
-                </html>
- 
-                """,
-
-                user.getNombre(),
-
-                user.getNombre(),
-
-                user.getEmail()
-
+        String subject = "Reenvío de confirmación de registro ¡Bienvenido/a a Glowin! 🌟";
+        String text = String.format(
+                "Hola %s,\n\n" +
+                        "¡Tu cuenta en Glowin ya está activa! Con ella se abre la puerta a una experiencia de belleza pensada solo para ti. 💜\n\n" +
+                        "Ahora puedes explorar y reservar los servicios que mejor se adapten a tu estilo:\n\n" +
+                        "💇‍♀️ Cabello – cortes, color y tratamientos\n" +
+                        "💅 Uñas – manicure, pedicure y diseños únicos\n" +
+                        "👁️ Pestañas – lifting, extensiones y más\n" +
+                        "🌿 Facial – limpieza, hidratación y cuidado profundo\n" +
+                        "🧿 Cejas – diseño, perfilado y pigmentación\n" +
+                        "💆 Corporal – depilación, masajes y tratamientos\n" +
+                        "🧔 Men – servicios especializados para ellos\n\n" +
+                        "Accede a tu cuenta y empieza a disfrutar de una experiencia personalizada, reservas rápidas y promociones exclusivas.\n" +
+                        "Iniciar sesión: http://44.203.174.248/ingresar\n\n" +
+                        "Gracias por elegirnos.\n" +
+                        "Si tienes dudas, ¡escríbenos! Estamos aquí para que brilles con estilo.\n\n" +
+                        "Con cariño,\n" +
+                        "El equipo de Glowin\n",
+                user.getNombre()
         );
 
         emailService.sendConfirmationEmail(user.getEmail(), subject, text);

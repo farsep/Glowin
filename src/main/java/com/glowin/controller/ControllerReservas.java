@@ -306,25 +306,19 @@ public class ControllerReservas {
         reservaRepo.save(reserva);
 
         // Construcción del correo electrónico
-        String subject = "Confirmación de Reserva en Glowin";
-        String emailContent = String.format("""
-                <html>
-                <body style="font-family: Arial, sans-serif; line-height: 1.6;">
-                    <h2>¡Hola %s!</h2>
-                    <p>Tu reserva ha sido confirmada con éxito. Aquí están los detalles:</p>
-                    <ul>
-                        <li><strong>Servicio:</strong> %s</li>
-                        <li><strong>Fecha:</strong> %s</li>
-                        <li><strong>Hora:</strong> %s</li>
-                        <li><strong>Empleado:</strong> %s</li>
-                    </ul>
-                    <p>Si tienes alguna consulta, no dudes en contactarnos.</p>
-                    <p>¡Gracias por elegir Glowin!</p>
-                    <br>
-                    <p>Saludos,<br>Equipo de Glowin</p>
-                </body>
-                </html>
-                """,
+        String subject = "Confirmación de Reserva en Glowin ✨";
+        String emailContent = String.format(
+                "Hola %s,\n\n" +
+                        "¡Tu reserva ha sido confirmada con éxito! Aquí tienes los detalles:\n\n" +
+                        "✨ Servicio: %s\n" +
+                        "📅 Fecha: %s\n" +
+                        "⏰ Hora: %s\n" +
+                        "👤 Empleado: %s\n\n" +
+                        "Accede a tu cuenta para ver más detalles o modificar tu reserva: http://44.203.174.248/ingresar\n\n" +
+                        "Si tienes alguna consulta, no dudes en contactarnos.\n" +
+                        "¡Gracias por elegir Glowin!\n\n" +
+                        "Saludos cordiales,\n" +
+                        "El equipo de Glowin\n",
                 usuario.getNombre(),
                 servicio.getNombre(),
                 reserva.getFecha().toString(),
@@ -448,26 +442,19 @@ public class ControllerReservas {
         Empleado empleado = reserva.getEmpleado();
 
         if (reserva.getEstado() == Estado.CONFIRMADA) {
-            String subject = "Confirmación de Reserva en Glowin";
+            String subject = "Confirmación de Reserva en Glowin ✨";
             String emailContent = String.format(
-                    """
-                    <html>
-                    <body style="font-family: Arial, sans-serif; line-height: 1.6;">
-                        <h2>¡Hola %s!</h2>
-                        <p>Tu reserva ha sido confirmada con éxito. Aquí están los detalles:</p>
-                        <ul>
-                            <li><strong>Servicio:</strong> %s</li>
-                            <li><strong>Fecha:</strong> %s</li>
-                            <li><strong>Hora:</strong> %s</li>
-                            <li><strong>Empleado:</strong> %s</li>
-                        </ul>
-                        <p>Si tienes alguna consulta, no dudes en contactarnos.</p>
-                        <p>¡Gracias por elegir Glowin!</p>
-                        <br>
-                        <p>Saludos,<br>Equipo de Glowin</p>
-                    </body>
-                    </html>
-                    """,
+                    "Hola %s,\n\n" +
+                            "¡Tu reserva ha sido confirmada con éxito! Aquí tienes los detalles:\n\n" +
+                            "✨ Servicio: %s\n" +
+                            "📅 Fecha: %s\n" +
+                            "⏰ Hora: %s\n" +
+                            "👤 Empleado: %s\n\n" +
+                            "Accede a tu cuenta para ver más detalles o modificar tu reserva: http://44.203.174.248/ingresar\n\n" +
+                            "Si tienes alguna consulta, no dudes en contactarnos.\n" +
+                            "¡Gracias por elegir Glowin!\n\n" +
+                            "Saludos cordiales,\n" +
+                            "El equipo de Glowin\n",
                     usuario.getNombre(),
                     servicio.getNombre(),
                     reserva.getFecha().toString(),
@@ -484,31 +471,25 @@ public class ControllerReservas {
                 ));
             }
         } else if (reserva.getEstado() == Estado.CANCELADA) {
-            String subject = "Cancelación de Reserva en Glowin";
+            String subject = "Cancelación de Reserva en Glowin ❌";
             String emailContent = String.format(
-                    """
-                    <html>
-                    <body style="font-family: Arial, sans-serif; line-height: 1.6;">
-                        <h2>¡Hola %s!</h2>
-                        <p>Tu reserva ha sido cancelada. Aquí están los detalles de la reserva cancelada:</p>
-                        <ul>
-                            <li><strong>Servicio:</strong> %s</li>
-                            <li><strong>Fecha:</strong> %s</li>
-                            <li><strong>Hora:</strong> %s</li>
-                            <li><strong>Empleado:</strong> %s</li>
-                        </ul>
-                        <p>Si necesitas más información o deseas reprogramar tu reserva, contáctanos.</p>
-                        <br>
-                        <p>Saludos,<br>Equipo de Glowin</p>
-                    </body>
-                    </html>
-                    """,
+                    "Hola %s,\n\n" +
+                            "Lamentamos informarte que tu reserva ha sido cancelada. Aquí tienes los detalles de la reserva cancelada:\n\n" +
+                            "✨ Servicio: %s\n" +
+                            "📅 Fecha: %s\n" +
+                            "⏰ Hora: %s\n" +
+                            "👤 Empleado: %s\n\n" +
+                            "Si necesitas más información o deseas reprogramar tu reserva, contáctanos.\n\n" +
+                            "Gracias por elegir Glowin.\n\n" +
+                            "Saludos cordiales,\n" +
+                            "El equipo de Glowin\n",
                     usuario.getNombre(),
                     servicio.getNombre(),
                     reserva.getFecha().toString(),
                     reserva.getHora().toString(),
                     empleado.getNombre()
             );
+
             try {
                 emailService.sendConfirmationEmail(usuario.getEmail(), subject, emailContent);
             } catch (Exception e) {
