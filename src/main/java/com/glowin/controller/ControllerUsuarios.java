@@ -128,7 +128,7 @@ public class ControllerUsuarios {
                         "💆 Corporal – depilación, masajes y tratamientos\n" +
                         "🧔 Men – servicios especializados para ellos\n\n" +
                         "Accede a tu cuenta y empieza a disfrutar de una experiencia personalizada, reservas rápidas y promociones exclusivas.\n" +
-                        "Iniciar sesión: http://44.203.174.248/ingresar\n\n" +
+                        "Iniciar sesión: http://44.204.48.151/ingresar\n\n" +
                         "Gracias por elegirnos.\n" +
                         "Si tienes dudas, ¡escríbenos! Estamos aquí para que brilles con estilo.\n\n" +
                         "Con cariño,\n" +

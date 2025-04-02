@@ -314,7 +314,7 @@ public class ControllerReservas {
                         "📅 Fecha: %s\n" +
                         "⏰ Hora: %s\n" +
                         "👤 Empleado: %s\n\n" +
-                        "Accede a tu cuenta para ver más detalles o modificar tu reserva: http://44.203.174.248/ingresar\n\n" +
+                        "Accede a tu cuenta para ver más detalles o modificar tu reserva: http://44.204.48.151/ingresar\n\n" +
                         "Si tienes alguna consulta, no dudes en contactarnos.\n" +
                         "¡Gracias por elegir Glowin!\n\n" +
                         "Saludos cordiales,\n" +
@@ -450,7 +450,7 @@ public class ControllerReservas {
                             "📅 Fecha: %s\n" +
                             "⏰ Hora: %s\n" +
                             "👤 Empleado: %s\n\n" +
-                            "Accede a tu cuenta para ver más detalles o modificar tu reserva: http://44.203.174.248/ingresar\n\n" +
+                            "Accede a tu cuenta para ver más detalles o modificar tu reserva: http://44.204.48.151/ingresar\n\n" +
                             "Si tienes alguna consulta, no dudes en contactarnos.\n" +
                             "¡Gracias por elegir Glowin!\n\n" +
                             "Saludos cordiales,\n" +
